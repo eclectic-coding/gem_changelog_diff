@@ -73,7 +73,7 @@ jobs:
         run: bundle exec rake spec
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         if: matrix.ruby == '3.4'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
