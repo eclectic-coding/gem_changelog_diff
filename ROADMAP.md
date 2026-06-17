@@ -6,7 +6,7 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Handle real-world failures and unblock power users hitting the 60 req/hr unauthenticated rate limit.
 
-- GitHub personal access token via `--token` flag or `GITHUB_TOKEN` env var
+- ~~GitHub personal access token via `--token` flag or `GITHUB_TOKEN` env var~~
 - Custom error hierarchy (`RepoNotFoundError`, `GitHubAPIError`, `RateLimitError`, `NetworkError`)
 - Graceful degradation: skip failed gems with a warning, do not abort the run
 - Rate limit awareness: read `X-RateLimit-Remaining` headers, warn when approaching the limit
