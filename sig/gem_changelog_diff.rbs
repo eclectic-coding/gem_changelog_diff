@@ -1,7 +1,17 @@
 module GemChangelogDiff
   VERSION: String
 
+  self.@configuration: Configuration
+
+  def self.configuration: () -> Configuration
+  def self.configure: () { (Configuration) -> void } -> void
+  def self.reset_configuration!: () -> Configuration
+
   class Error < StandardError
+  end
+
+  class Configuration
+    attr_accessor github_token: String?
   end
 
   class OutdatedGem
@@ -50,6 +60,8 @@ module GemChangelogDiff
     private
 
     def fetch_releases: (String repo) -> Array[Hash[String, untyped]]
+    def execute_request: (URI::Generic uri) -> Net::HTTPResponse
+    def apply_auth: (Net::HTTPRequest request) -> void
     def filter_releases: (Array[Hash[String, untyped]] releases, String current_version, String newest_version) -> Array[release_hash]
     def build_release: (Hash[String, untyped] release, Gem::Version current, Gem::Version newest) -> release_hash?
     def sort_releases: (Array[release_hash] releases) -> Array[release_hash]
@@ -79,6 +91,7 @@ module GemChangelogDiff
 
     private
 
+    def configure_token: () -> void
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, GithubClient github_client) -> gem_report
   end

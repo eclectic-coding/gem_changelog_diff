@@ -19,17 +19,24 @@ module GemChangelogDiff
       uri = URI(format(RELEASES_URL, repo: repo))
       uri.query = URI.encode_www_form(per_page: 30)
 
-      request = Net::HTTP::Get.new(uri)
-      request["Accept"] = "application/vnd.github.v3+json"
-      request["User-Agent"] = "gem_changelog_diff/#{VERSION}"
-
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-        http.request(request)
-      end
-
+      response = execute_request(uri)
       return [] unless response.is_a?(Net::HTTPSuccess)
 
       JSON.parse(response.body)
+    end
+
+    def execute_request(uri)
+      request = Net::HTTP::Get.new(uri)
+      request["Accept"] = "application/vnd.github.v3+json"
+      request["User-Agent"] = "gem_changelog_diff/#{VERSION}"
+      apply_auth(request)
+
+      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    end
+
+    def apply_auth(request)
+      token = GemChangelogDiff.configuration.github_token
+      request["Authorization"] = "token #{token}" if token
     end
 
     def filter_releases(releases, current_version, newest_version)
