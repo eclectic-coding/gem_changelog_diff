@@ -14,3 +14,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `OutdatedGem` data object for representing outdated gem info
 - RubyGems API client to look up each gem's GitHub repository
 - GitHub API client to fetch releases between locked and latest versions
+- Plain text formatter for changelog output
+- Full end-to-end pipeline: detect → lookup → fetch → format
