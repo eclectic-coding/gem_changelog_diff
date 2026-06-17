@@ -35,6 +35,17 @@ gem_changelog_diff version    # Print version
 gem_changelog_diff --version  # Same as above
 ```
 
+### GitHub Authentication
+
+To avoid the 60 requests/hour unauthenticated rate limit, provide a GitHub personal access token:
+
+```bash
+gem_changelog_diff --token ghp_your_token
+# or
+export GITHUB_TOKEN=ghp_your_token
+gem_changelog_diff
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

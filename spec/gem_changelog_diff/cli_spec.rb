@@ -5,6 +5,8 @@ RSpec.describe GemChangelogDiff::CLI do
     GemChangelogDiff::OutdatedGem.new(name: "rails", current_version: "7.0.8", newest_version: "7.1.3")
   end
 
+  after { GemChangelogDiff.reset_configuration! }
+
   describe "#check" do
     context "when all gems are up to date" do
       it "prints up to date message" do
@@ -52,6 +54,28 @@ RSpec.describe GemChangelogDiff::CLI do
 
         expect(output).to include("Could not find GitHub repository.")
       end
+    end
+  end
+
+  describe "--token flag" do
+    it "sets the GitHub token from the flag" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      capture_output { described_class.start(["check", "--token", "ghp_flag_token"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to eq("ghp_flag_token")
+    end
+
+    it "falls back to GITHUB_TOKEN env var" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("GITHUB_TOKEN", nil).and_return("ghp_env_token")
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to eq("ghp_env_token")
     end
   end
 

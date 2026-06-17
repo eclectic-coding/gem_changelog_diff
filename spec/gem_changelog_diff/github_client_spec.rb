@@ -3,6 +3,8 @@
 RSpec.describe GemChangelogDiff::GithubClient do
   subject(:client) { described_class.new }
 
+  after { GemChangelogDiff.reset_configuration! }
+
   let(:releases_url) { "https://api.github.com/repos/rails/rails/releases?per_page=30" }
 
   let(:releases_json) do
@@ -91,6 +93,31 @@ RSpec.describe GemChangelogDiff::GithubClient do
         results = client.releases_between("rails/rails", "7.0.8", "7.1.3")
 
         expect(results).to eq([])
+      end
+    end
+
+    context "with a GitHub token configured" do
+      it "sends the Authorization header" do
+        GemChangelogDiff.configuration.github_token = "ghp_test123"
+        stub_request(:get, releases_url)
+          .with(headers: { "Authorization" => "token ghp_test123" })
+          .to_return(status: 200, body: releases_json)
+
+        client.releases_between("rails/rails", "7.0.8", "7.1.3")
+
+        expect(WebMock).to have_requested(:get, releases_url)
+          .with(headers: { "Authorization" => "token ghp_test123" })
+      end
+    end
+
+    context "without a GitHub token" do
+      it "does not send the Authorization header" do
+        stub_request(:get, releases_url).to_return(status: 200, body: releases_json)
+
+        client.releases_between("rails/rails", "7.0.8", "7.1.3")
+
+        expect(WebMock).to have_requested(:get, releases_url)
+          .with { |req| req.headers.keys.none? { |k| k.casecmp("authorization").zero? } }
       end
     end
 

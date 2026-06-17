@@ -10,8 +10,11 @@ module GemChangelogDiff
 
     default_task :check
 
+    class_option :token, type: :string, desc: "GitHub personal access token"
+
     desc "check", "Show changelog diffs for outdated gems"
     def check
+      configure_token
       gems = Detector.new.detect
 
       if gems.empty?
@@ -37,6 +40,11 @@ module GemChangelogDiff
       github_client = GithubClient.new
 
       gems.map { |gem| build_gem_report(gem, rubygems_client, github_client) }
+    end
+
+    def configure_token
+      token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
+      GemChangelogDiff.configuration.github_token = token if token
     end
 
     def build_gem_report(gem, rubygems_client, github_client)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "gem_changelog_diff/version"
+require_relative "gem_changelog_diff/configuration"
 require_relative "gem_changelog_diff/outdated_gem"
 require_relative "gem_changelog_diff/detector"
 require_relative "gem_changelog_diff/rubygems_client"
