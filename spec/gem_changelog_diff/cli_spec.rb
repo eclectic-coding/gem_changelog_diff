@@ -23,13 +23,13 @@ RSpec.describe GemChangelogDiff::CLI do
       it "prints formatted changelog output" do
         detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
         rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
-        github_client = instance_double(GemChangelogDiff::GithubClient)
+        source_resolver = instance_double(GemChangelogDiff::SourceResolver)
 
         allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
         allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
-        allow(GemChangelogDiff::GithubClient).to receive(:new).and_return(github_client)
+        allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
         allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
-        allow(github_client).to receive(:releases_between)
+        allow(source_resolver).to receive(:resolve)
           .with("rails/rails", "7.0.8", "7.1.3")
           .and_return([{ tag_name: "v7.1.3", name: "7.1.3",
                          published_at: "2024-02-21T00:00:00Z", body: "Bug fixes" }])
@@ -90,13 +90,13 @@ RSpec.describe GemChangelogDiff::CLI do
     it "prints status messages to stderr" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
       rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
-      github_client = instance_double(GemChangelogDiff::GithubClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
 
       allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
       allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
-      allow(GemChangelogDiff::GithubClient).to receive(:new).and_return(github_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
       allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
-      allow(github_client).to receive(:releases_between).and_return([])
+      allow(source_resolver).to receive(:resolve).and_return([])
 
       expect { capture_output { described_class.start(["check", "--verbose"]) } }
         .to output(/Checking rails/).to_stderr

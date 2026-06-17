@@ -44,18 +44,18 @@ module GemChangelogDiff
 
     def build_reports(gems)
       rubygems_client = RubygemsClient.new
-      github_client = GithubClient.new
+      source_resolver = SourceResolver.new
 
-      gems.map { |gem| build_gem_report(gem, rubygems_client, github_client) }
+      gems.map { |gem| build_gem_report(gem, rubygems_client, source_resolver) }
     end
 
-    def build_gem_report(gem, rubygems_client, github_client)
+    def build_gem_report(gem, rubygems_client, source_resolver)
       log "Checking #{gem.name}..."
       repo = rubygems_client.repo_url(gem.name)
       return { gem: gem, releases: [], error: "  Could not find GitHub repository." } if repo.nil?
 
       log "  Found repo: #{repo}"
-      releases = github_client.releases_between(repo, gem.current_version, gem.newest_version)
+      releases = source_resolver.resolve(repo, gem.current_version, gem.newest_version)
       { gem: gem, releases: releases }
     rescue GemChangelogDiff::Error => e
       log_warning "  Skipping #{gem.name}: #{e.message}"

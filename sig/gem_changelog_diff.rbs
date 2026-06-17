@@ -63,6 +63,31 @@ module GemChangelogDiff
     body: String?
   }
 
+  class ChangelogParser
+    CONTENTS_URL: String
+    FILENAMES: Array[String]
+    VERSION_HEADING: Regexp
+
+    def entries_between: (String repo, String current_version, String newest_version) -> Array[release_hash]
+
+    private
+
+    def fetch_changelog: (String repo) -> String?
+    def fetch_file: (String repo, String path) -> String?
+    def execute_request: (URI::Generic uri) -> Net::HTTPResponse
+    def parse_entries: (String content, String current_version, String newest_version) -> Array[release_hash]
+    def build_entry: (String version_str, String body, Gem::Version current, Gem::Version newest) -> release_hash?
+    def split_sections: (String content) -> Array[[String, String]]
+    def process_line: (String line, Array[[String, String]] sections, String? current_version, Array[String] current_body) -> [String?, Array[String]]
+    def flush_section: (Array[[String, String]] sections, String? version, Array[String] body) -> void
+    def clean_version: (String raw) -> String
+  end
+
+  class SourceResolver
+    def initialize: (?github_client: GithubClient, ?changelog_parser: ChangelogParser) -> void
+    def resolve: (String repo, String current_version, String newest_version) -> Array[release_hash]
+  end
+
   class GithubClient
     RELEASES_URL: String
     TAG_VERSION_REGEX: Regexp
@@ -107,7 +132,7 @@ module GemChangelogDiff
 
     def configure_token: () -> void
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
-    def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, GithubClient github_client) -> gem_report
+    def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
     def log: (String message) -> void
     def log_warning: (String message) -> void
   end
