@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - GitHub personal access token support via `--token` flag or `GITHUB_TOKEN` env var
 - `Configuration` singleton for managing runtime settings
+- Custom error hierarchy: `RepoNotFoundError`, `GitHubAPIError`, `RateLimitError`, `NetworkError`
+- Graceful degradation: failed gems are skipped with a warning instead of aborting
+- Rate limit awareness: warns when GitHub API requests remaining drops below 10
+- `--verbose` flag for detailed status output
+- `--quiet` flag to suppress warnings
 
 ## [0.1.0] - 2026-06-17
 
