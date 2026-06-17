@@ -10,6 +10,18 @@ module GemChangelogDiff
   class Error < StandardError
   end
 
+  class RepoNotFoundError < Error
+  end
+
+  class GitHubAPIError < Error
+  end
+
+  class RateLimitError < GitHubAPIError
+  end
+
+  class NetworkError < Error
+  end
+
   class Configuration
     attr_accessor github_token: String?
   end
@@ -62,6 +74,8 @@ module GemChangelogDiff
     def fetch_releases: (String repo) -> Array[Hash[String, untyped]]
     def execute_request: (URI::Generic uri) -> Net::HTTPResponse
     def apply_auth: (Net::HTTPRequest request) -> void
+    def handle_response: (Net::HTTPResponse response) -> Array[Hash[String, untyped]]
+    def check_rate_limit: (Net::HTTPResponse response) -> void
     def filter_releases: (Array[Hash[String, untyped]] releases, String current_version, String newest_version) -> Array[release_hash]
     def build_release: (Hash[String, untyped] release, Gem::Version current, Gem::Version newest) -> release_hash?
     def sort_releases: (Array[release_hash] releases) -> Array[release_hash]
@@ -94,5 +108,7 @@ module GemChangelogDiff
     def configure_token: () -> void
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, GithubClient github_client) -> gem_report
+    def log: (String message) -> void
+    def log_warning: (String message) -> void
   end
 end
