@@ -8,8 +8,8 @@ Ship the core pipeline so a user can run `gem_changelog_diff` and see changelog 
 
 - ~~CLI entry point via Thor (`exe/gem_changelog_diff`)~~
 - ~~Detect outdated gems by parsing `bundle outdated --parseable`~~
-- Look up each gem's GitHub repository via the RubyGems API (`/api/v1/gems/{name}.json`)
-- Fetch GitHub releases between locked and latest versions via `net/http`
+- ~~Look up each gem's GitHub repository via the RubyGems API (`/api/v1/gems/{name}.json`)~~
+- ~~Fetch GitHub releases between locked and latest versions via `net/http`~~
 - Plain text output to stdout
 
 **New files:** `exe/gem_changelog_diff`, `cli.rb`, `detector.rb`, `rubygems_client.rb`, `github_client.rb`, `formatter.rb`
