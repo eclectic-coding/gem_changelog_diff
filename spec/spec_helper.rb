@@ -14,6 +14,7 @@ end
 # frozen_string_literal: true
 
 require "gem_changelog_diff"
+require "webmock/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
