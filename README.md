@@ -28,7 +28,12 @@ bundle add gem_changelog_diff
 gem_changelog_diff
 ```
 
-Run from a project directory with a `Gemfile.lock`. The tool compares your locked gem versions against the latest available versions and displays the relevant changelog entries from GitHub releases.
+Run from a project directory with a `Gemfile.lock`. The tool detects outdated gems via `bundle outdated` and displays the relevant changelog entries from GitHub releases.
+
+```bash
+gem_changelog_diff version    # Print version
+gem_changelog_diff --version  # Same as above
+```
 
 ## Development
 
