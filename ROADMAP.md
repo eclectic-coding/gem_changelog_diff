@@ -2,19 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.2.0 -- Error Handling & GitHub Authentication
-
-Handle real-world failures and unblock power users hitting the 60 req/hr unauthenticated rate limit.
-
-- Custom error hierarchy (`RepoNotFoundError`, `GitHubAPIError`, `RateLimitError`, `NetworkError`)
-- Graceful degradation: skip failed gems with a warning, do not abort the run
-- Rate limit awareness: read `X-RateLimit-Remaining` headers, warn when approaching the limit
-- `--verbose` and `--quiet` flags
-
-**New files:** `errors.rb`, `configuration.rb`
-
----
-
 ## 0.3.0 -- CHANGELOG.md Fallback & Colored Output
 
 Many gems do not use GitHub Releases. Fall back to parsing CHANGELOG.md from the repository.

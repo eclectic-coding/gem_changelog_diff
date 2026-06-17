@@ -46,6 +46,13 @@ export GITHUB_TOKEN=ghp_your_token
 gem_changelog_diff
 ```
 
+### Output Control
+
+```bash
+gem_changelog_diff --verbose  # Show detailed status messages
+gem_changelog_diff --quiet    # Suppress warnings
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

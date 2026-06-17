@@ -15,6 +15,9 @@ module GemChangelogDiff
 
       data = JSON.parse(response.body)
       extract_github_repo(data)
+    rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
+           Net::OpenTimeout, Net::ReadTimeout => e
+      raise NetworkError, "RubyGems API request failed: #{e.message}"
     end
 
     private

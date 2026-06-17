@@ -55,6 +55,67 @@ RSpec.describe GemChangelogDiff::CLI do
         expect(output).to include("Could not find GitHub repository.")
       end
     end
+
+    context "when a gem raises an error" do
+      it "skips the gem and includes the error in output" do
+        detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+        rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+        allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+        allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+        allow(rubygems_client).to receive(:repo_url)
+          .and_raise(GemChangelogDiff::NetworkError, "connection refused")
+
+        output = capture_output { described_class.start(["check"]) }
+
+        expect(output).to include("connection refused")
+      end
+
+      it "warns to stderr" do
+        detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+        rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+        allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+        allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+        allow(rubygems_client).to receive(:repo_url)
+          .and_raise(GemChangelogDiff::NetworkError, "connection refused")
+
+        expect { capture_output { described_class.start(["check"]) } }
+          .to output(/Skipping rails/).to_stderr
+      end
+    end
+  end
+
+  describe "--verbose flag" do
+    it "prints status messages to stderr" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      github_client = instance_double(GemChangelogDiff::GithubClient)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::GithubClient).to receive(:new).and_return(github_client)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(github_client).to receive(:releases_between).and_return([])
+
+      expect { capture_output { described_class.start(["check", "--verbose"]) } }
+        .to output(/Checking rails/).to_stderr
+    end
+  end
+
+  describe "--quiet flag" do
+    it "suppresses warning output to stderr" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url)
+        .and_raise(GemChangelogDiff::NetworkError, "connection refused")
+
+      expect { capture_output { described_class.start(["check", "--quiet"]) } }
+        .not_to output.to_stderr
+    end
   end
 
   describe "--token flag" do

@@ -7,6 +7,7 @@ module GemChangelogDiff
   class GithubClient
     RELEASES_URL = "https://api.github.com/repos/%<repo>s/releases"
     TAG_VERSION_REGEX = /\Av?(\d+\..+)\z/
+    RATE_LIMIT_WARNING_THRESHOLD = 10
 
     def releases_between(repo, current_version, newest_version)
       releases = fetch_releases(repo)
@@ -20,9 +21,11 @@ module GemChangelogDiff
       uri.query = URI.encode_www_form(per_page: 30)
 
       response = execute_request(uri)
-      return [] unless response.is_a?(Net::HTTPSuccess)
-
-      JSON.parse(response.body)
+      check_rate_limit(response)
+      handle_response(response)
+    rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
+           Net::OpenTimeout, Net::ReadTimeout => e
+      raise NetworkError, "GitHub API request failed: #{e.message}"
     end
 
     def execute_request(uri)
@@ -37,6 +40,25 @@ module GemChangelogDiff
     def apply_auth(request)
       token = GemChangelogDiff.configuration.github_token
       request["Authorization"] = "token #{token}" if token
+    end
+
+    def handle_response(response)
+      return [] if response.code == "404"
+
+      if response.code == "403" && response["X-RateLimit-Remaining"] == "0"
+        raise RateLimitError, "GitHub API rate limit exceeded. Use --token to authenticate."
+      end
+
+      raise GitHubAPIError, "GitHub API error (HTTP #{response.code})" unless response.is_a?(Net::HTTPSuccess)
+
+      JSON.parse(response.body)
+    end
+
+    def check_rate_limit(response)
+      remaining = response["X-RateLimit-Remaining"]&.to_i
+      return if remaining.nil? || remaining >= RATE_LIMIT_WARNING_THRESHOLD
+
+      warn "Warning: GitHub API rate limit low (#{remaining} requests remaining). Use --token to authenticate."
     end
 
     def filter_releases(releases, current_version, newest_version)

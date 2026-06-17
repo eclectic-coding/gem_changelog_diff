@@ -121,6 +121,46 @@ RSpec.describe GemChangelogDiff::GithubClient do
       end
     end
 
+    context "when API returns 500" do
+      it "raises GitHubAPIError" do
+        stub_request(:get, releases_url).to_return(status: 500, body: "Internal Server Error")
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::GitHubAPIError, /HTTP 500/)
+      end
+    end
+
+    context "when rate limited" do
+      it "raises RateLimitError" do
+        stub_request(:get, releases_url)
+          .to_return(status: 403, body: "Rate limit exceeded",
+                     headers: { "X-RateLimit-Remaining" => "0" })
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::RateLimitError, /rate limit exceeded/i)
+      end
+    end
+
+    context "when rate limit is low" do
+      it "warns to stderr" do
+        stub_request(:get, releases_url)
+          .to_return(status: 200, body: releases_json,
+                     headers: { "X-RateLimit-Remaining" => "5" })
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to output(/rate limit low/i).to_stderr
+      end
+    end
+
+    context "when a network error occurs" do
+      it "raises NetworkError" do
+        stub_request(:get, releases_url).to_raise(SocketError.new("getaddrinfo: Name or service not known"))
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::NetworkError, /Name or service not known/)
+      end
+    end
+
     it "returns symbolized keys with expected fields" do
       stub_request(:get, releases_url).to_return(status: 200, body: releases_json)
 

@@ -83,5 +83,15 @@ RSpec.describe GemChangelogDiff::RubygemsClient do
         expect(client.repo_url("nonexistent")).to be_nil
       end
     end
+
+    context "when a network error occurs" do
+      it "raises NetworkError" do
+        stub_request(:get, "https://rubygems.org/api/v1/gems/rails.json")
+          .to_raise(SocketError.new("getaddrinfo: Name or service not known"))
+
+        expect { client.repo_url("rails") }
+          .to raise_error(GemChangelogDiff::NetworkError, /Name or service not known/)
+      end
+    end
   end
 end
