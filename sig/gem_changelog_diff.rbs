@@ -1,4 +1,85 @@
 module GemChangelogDiff
   VERSION: String
-  # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+
+  class Error < StandardError
+  end
+
+  class OutdatedGem
+    attr_reader name: String
+    attr_reader current_version: String
+    attr_reader newest_version: String
+
+    def self.new: (name: String, current_version: String, newest_version: String) -> OutdatedGem
+  end
+
+  class Detector
+    PARSEABLE_REGEX: Regexp
+
+    def detect: () -> Array[OutdatedGem]
+
+    private
+
+    def run_bundle_outdated: () -> String
+    def parse: (String output) -> Array[OutdatedGem]
+  end
+
+  class RubygemsClient
+    RUBYGEMS_API: String
+    GITHUB_REPO_REGEX: Regexp
+
+    def repo_url: (String gem_name) -> String?
+
+    private
+
+    def extract_github_repo: (Hash[String, untyped] data) -> String?
+  end
+
+  type release_hash = {
+    tag_name: String,
+    name: String?,
+    published_at: String?,
+    body: String?
+  }
+
+  class GithubClient
+    RELEASES_URL: String
+    TAG_VERSION_REGEX: Regexp
+
+    def releases_between: (String repo, String current_version, String newest_version) -> Array[release_hash]
+
+    private
+
+    def fetch_releases: (String repo) -> Array[Hash[String, untyped]]
+    def filter_releases: (Array[Hash[String, untyped]] releases, String current_version, String newest_version) -> Array[release_hash]
+    def build_release: (Hash[String, untyped] release, Gem::Version current, Gem::Version newest) -> release_hash?
+    def sort_releases: (Array[release_hash] releases) -> Array[release_hash]
+    def extract_version: (String? tag) -> String?
+  end
+
+  type gem_report = {
+    gem: OutdatedGem,
+    releases: Array[release_hash],
+    ?error: String
+  }
+
+  class Formatter
+    def format: (Array[gem_report] gem_reports) -> String
+
+    private
+
+    def format_gem: (gem_report report) -> String
+    def format_release: (release_hash release) -> String
+  end
+
+  class CLI < Thor
+    def self.exit_on_failure?: () -> bool
+
+    def check: () -> void
+    def version: () -> void
+
+    private
+
+    def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
+    def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, GithubClient github_client) -> gem_report
+  end
 end
