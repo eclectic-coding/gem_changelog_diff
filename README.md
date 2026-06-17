@@ -8,6 +8,16 @@
 
 CLI that shows you the changelog diff for each gem before you `bundle update`, pulled from GitHub releases.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [GitHub Authentication](#github-authentication)
+  - [Output Control](#output-control)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Installation
 
 Install the gem by executing:
@@ -21,6 +31,8 @@ Or add it to your Gemfile:
 ```bash
 bundle add gem_changelog_diff
 ```
+
+[Back to top](#gemchangelogdiff)
 
 ## Usage
 
@@ -53,15 +65,21 @@ gem_changelog_diff --verbose  # Show detailed status messages
 gem_changelog_diff --quiet    # Suppress warnings
 ```
 
+[Back to top](#gemchangelogdiff)
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`.
 
+[Back to top](#gemchangelogdiff)
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/eclectic-coding/gem_changelog_diff.
+
+[Back to top](#gemchangelogdiff)
 
 ## License
 
