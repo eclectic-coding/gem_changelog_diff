@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.email = ["eclectic-coding@users.noreply.github.com"]
 
   spec.summary = "Show changelog diffs for outdated gems before you bundle update."
-  spec.description = "CLI that shows you the changelog diff for each gem before you bundle update, pulled from GitHub releases."
+  spec.description = "CLI that shows you the changelog diff for each gem before you bundle update, " \
+                     "pulled from GitHub releases."
   spec.homepage = "https://github.com/eclectic-coding/gem_changelog_diff"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
@@ -30,5 +31,4 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-
 end

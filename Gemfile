@@ -7,7 +7,6 @@ gemspec
 
 gem "rake", "~> 13.0"
 
-
 group :development do
   gem "bundler-audit"
   gem "irb"
@@ -16,6 +15,7 @@ group :development do
 end
 
 group :test do
+  gem "rspec", "~> 3.0"
   gem "simplecov", require: false
   gem "simplecov_json_formatter", require: false
 end

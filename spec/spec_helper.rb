@@ -9,7 +9,9 @@ SimpleCov.start do
   add_filter "/spec/"
   add_filter "/version.rb"
   track_files "lib/**/*.rb"
-end# frozen_string_literal: true
+end
+
+# frozen_string_literal: true
 
 require "gem_changelog_diff"
 
