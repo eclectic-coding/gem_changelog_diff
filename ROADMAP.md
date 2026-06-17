@@ -6,8 +6,8 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Ship the core pipeline so a user can run `gem_changelog_diff` and see changelog diffs for outdated gems.
 
-- CLI entry point via Thor (`exe/gem_changelog_diff`)
-- Detect outdated gems by parsing `bundle outdated --parseable`
+- ~~CLI entry point via Thor (`exe/gem_changelog_diff`)~~
+- ~~Detect outdated gems by parsing `bundle outdated --parseable`~~
 - Look up each gem's GitHub repository via the RubyGems API (`/api/v1/gems/{name}.json`)
 - Fetch GitHub releases between locked and latest versions via `net/http`
 - Plain text output to stdout
