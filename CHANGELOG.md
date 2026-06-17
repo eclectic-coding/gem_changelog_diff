@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CHANGELOG.md fallback: fetches and parses changelog files when GitHub Releases are unavailable
+- Tries common filename variants: `CHANGELOG.md`, `CHANGES.md`, `History.md`, `NEWS.md`
+- `SourceResolver` orchestrates releases-first, changelog-fallback strategy
+
 ## [0.2.0] - 2026-06-17
 
 ### Added

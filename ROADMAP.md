@@ -6,8 +6,6 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Many gems do not use GitHub Releases. Fall back to parsing CHANGELOG.md from the repository.
 
-- Fetch raw CHANGELOG.md via GitHub Contents API; try common variants (`CHANGELOG.md`, `CHANGES.md`, `History.md`, `NEWS.md`)
-- Parse Keep-a-Changelog and common freeform formats; extract entries between current and target versions
 - Colorized terminal output via `tty-color` (gem names, versions, warnings); respect `$NO_COLOR` and `--no-color`
 - Summary line: "X gems outdated, Y with changelogs found, Z skipped"
 
