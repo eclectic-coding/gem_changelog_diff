@@ -2,21 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.1.0 -- MVP: End-to-End Proof of Value
-
-Ship the core pipeline so a user can run `gem_changelog_diff` and see changelog diffs for outdated gems.
-
-- ~~CLI entry point via Thor (`exe/gem_changelog_diff`)~~
-- ~~Detect outdated gems by parsing `bundle outdated --parseable`~~
-- ~~Look up each gem's GitHub repository via the RubyGems API (`/api/v1/gems/{name}.json`)~~
-- ~~Fetch GitHub releases between locked and latest versions via `net/http`~~
-- ~~Plain text output to stdout~~
-
-**New files:** `exe/gem_changelog_diff`, `cli.rb`, `detector.rb`, `rubygems_client.rb`, `github_client.rb`, `formatter.rb`
-**Dependencies:** `thor ~> 1.0` (runtime), `webmock` (test)
-
----
-
 ## 0.2.0 -- Error Handling & GitHub Authentication
 
 Handle real-world failures and unblock power users hitting the 60 req/hr unauthenticated rate limit.
