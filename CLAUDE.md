@@ -18,6 +18,13 @@ bundle exec rubocop -a        # Lint with auto-correct
 bundle exec rake bundle:audit:check        # Security audit
 ```
 
+## Workflow
+
+All feature work lives on `feature/<version>-<scope>` branches (e.g. `feature/0.1.0-core`). Every branch produces two commits before pushing:
+
+1. **Feature commit** — implementation + specs. Run `bundle exec rake` and fix all failures before committing.
+2. **Docs commit** — add shipped items to `CHANGELOG.md`, remove them from `ROADMAP.md`, update `README.md`. Run `bundle exec rake` again before this commit.
+
 ## Code Style
 
 - RuboCop with `rubocop-rake` plugin; double quotes for strings
