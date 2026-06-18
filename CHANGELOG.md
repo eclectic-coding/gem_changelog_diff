@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `UriResolver` class for source URI resolution with non-GitHub host detection
+- Informative skip messages for gems hosted on GitLab, Codeberg, Bitbucket, and SourceHut
+- Automatic redirect following for renamed GitHub repositories (up to 3 hops)
+- `RepoNotFoundError` raised with descriptive messages for non-GitHub gems
+
+### Changed
+
+- `RubygemsClient` delegates URI resolution to `UriResolver` (extracted `extract_github_repo`)
+- Error message for missing repo changed from "Could not find GitHub repository" to "Could not determine source repository"
+
 ## [0.7.0] - 2026-06-18
 
 ### Added
