@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-18
+
 ### Added
 
 - Formatter class hierarchy: `Formatters::Text`, `Formatters::Json`, `Formatters::Markdown`
@@ -74,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plain text formatter for changelog output
 - Full end-to-end pipeline: detect → lookup → fetch → format
 
-[Unreleased]: https://github.com/eclectic-coding/gem_changelog_diff/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/gem_changelog_diff/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.6.0
 [0.5.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.5.0
 [0.4.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.4.0
 [0.3.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.3.0
