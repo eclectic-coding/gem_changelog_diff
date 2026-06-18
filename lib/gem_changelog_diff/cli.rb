@@ -102,8 +102,8 @@ module GemChangelogDiff
 
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
-      token ||= gh_cli_token
       token ||= rails_credentials_token
+      token ||= gh_cli_token
       token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
     end
