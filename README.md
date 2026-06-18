@@ -61,9 +61,12 @@ gem_changelog_diff
 ### Output Control
 
 ```bash
-gem_changelog_diff --verbose  # Show detailed status messages
-gem_changelog_diff --quiet    # Suppress warnings
+gem_changelog_diff --verbose   # Show detailed status messages
+gem_changelog_diff --quiet     # Suppress warnings
+gem_changelog_diff --no-color  # Disable colored output
 ```
+
+The tool also respects the `$NO_COLOR` environment variable.
 
 [Back to top](#gemchangelogdiff)
 

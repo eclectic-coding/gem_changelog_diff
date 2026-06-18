@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CHANGELOG.md fallback: fetches and parses changelog files when GitHub Releases are unavailable
 - Tries common filename variants: `CHANGELOG.md`, `CHANGES.md`, `History.md`, `NEWS.md`
 - `SourceResolver` orchestrates releases-first, changelog-fallback strategy
+- Colorized terminal output via `tty-color`; respects `$NO_COLOR` and `--no-color` flag
+- Summary line: "X gems outdated, Y with changelogs found, Z skipped"
 
 ## [0.2.0] - 2026-06-17
 
