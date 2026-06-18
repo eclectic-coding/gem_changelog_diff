@@ -103,6 +103,54 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--strategy lockfile" do
+    it "uses lockfile parser instead of bundle outdated" do
+      lockfile_parser = instance_double(GemChangelogDiff::LockfileParser, detect: [])
+      allow(GemChangelogDiff::LockfileParser).to receive(:new).and_return(lockfile_parser)
+
+      capture_output { described_class.start(["check", "--strategy", "lockfile"]) }
+
+      expect(lockfile_parser).to have_received(:detect).with(lockfile_path: "Gemfile.lock")
+    end
+  end
+
+  describe "--strategy outdated" do
+    it "uses bundle outdated only" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      capture_output { described_class.start(["check", "--strategy", "outdated"]) }
+
+      expect(detector).to have_received(:detect)
+    end
+  end
+
+  describe "--strategy auto" do
+    it "falls back to lockfile when bundle outdated fails" do
+      detector = instance_double(GemChangelogDiff::Detector)
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(detector).to receive(:detect).and_raise(GemChangelogDiff::Error, "bundle outdated failed")
+
+      lockfile_parser = instance_double(GemChangelogDiff::LockfileParser, detect: [])
+      allow(GemChangelogDiff::LockfileParser).to receive(:new).and_return(lockfile_parser)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(lockfile_parser).to have_received(:detect)
+    end
+  end
+
+  describe "--lockfile flag" do
+    it "passes custom path to lockfile parser" do
+      lockfile_parser = instance_double(GemChangelogDiff::LockfileParser, detect: [])
+      allow(GemChangelogDiff::LockfileParser).to receive(:new).and_return(lockfile_parser)
+
+      capture_output { described_class.start(["check", "--strategy", "lockfile", "--lockfile", "/custom/path"]) }
+
+      expect(lockfile_parser).to have_received(:detect).with(lockfile_path: "/custom/path")
+    end
+  end
+
   describe "--no-color flag" do
     it "disables colored output" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])

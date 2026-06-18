@@ -14,11 +14,13 @@ module GemChangelogDiff
     class_option :verbose, type: :boolean, default: false, desc: "Show detailed output"
     class_option :quiet, type: :boolean, default: false, desc: "Suppress warnings"
     class_option :no_color, type: :boolean, default: false, desc: "Disable colored output"
+    class_option :lockfile, type: :string, desc: "Path to Gemfile.lock"
+    class_option :strategy, type: :string, default: "auto", desc: "Detection strategy (auto, outdated, lockfile)"
 
     desc "check", "Show changelog diffs for outdated gems"
     def check
       configure_token
-      gems = Detector.new.detect
+      gems = detect_gems
 
       if gems.empty?
         say "All gems are up to date!"
@@ -42,6 +44,29 @@ module GemChangelogDiff
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
       GemChangelogDiff.configuration.github_token = token if token
+    end
+
+    def detect_gems
+      case options[:strategy]
+      when "lockfile"
+        detect_via_lockfile
+      when "outdated"
+        Detector.new.detect
+      else
+        detect_with_fallback
+      end
+    end
+
+    def detect_with_fallback
+      Detector.new.detect
+    rescue Error
+      log_warning "  bundle outdated failed, falling back to lockfile parsing..."
+      detect_via_lockfile
+    end
+
+    def detect_via_lockfile
+      lockfile_path = options[:lockfile] || "Gemfile.lock"
+      LockfileParser.new.detect(lockfile_path: lockfile_path)
     end
 
     def build_reports(gems)

@@ -9,18 +9,29 @@ module GemChangelogDiff
     GITHUB_REPO_REGEX = %r{github\.com/([^/]+)/([^/]+)}
 
     def repo_url(gem_name)
+      data = fetch_gem_data(gem_name)
+      return nil unless data
+
+      extract_github_repo(data)
+    end
+
+    def latest_version(gem_name)
+      data = fetch_gem_data(gem_name)
+      data&.dig("version")
+    end
+
+    private
+
+    def fetch_gem_data(gem_name)
       uri = URI(format(RUBYGEMS_API, name: gem_name))
       response = Net::HTTP.get_response(uri)
       return nil unless response.is_a?(Net::HTTPSuccess)
 
-      data = JSON.parse(response.body)
-      extract_github_repo(data)
+      JSON.parse(response.body)
     rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
            Net::OpenTimeout, Net::ReadTimeout => e
       raise NetworkError, "RubyGems API request failed: #{e.message}"
     end
-
-    private
 
     def extract_github_repo(data)
       %w[source_code_uri homepage_uri bug_tracker_uri].each do |field|
