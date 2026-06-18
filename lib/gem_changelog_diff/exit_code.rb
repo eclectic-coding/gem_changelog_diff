@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module GemChangelogDiff
+  # Process exit code constants for CLI commands.
   module ExitCode
     SUCCESS         = 0
     ERROR           = 1

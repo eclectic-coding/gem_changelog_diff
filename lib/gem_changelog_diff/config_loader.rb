@@ -3,6 +3,7 @@
 require "yaml"
 
 module GemChangelogDiff
+  # Loads and merges YAML config from user and project locations.
   class ConfigLoader
     USER_CONFIG_DIR = File.join(Dir.home, ".config", "gem_changelog_diff")
     USER_CONFIG_PATH = File.join(USER_CONFIG_DIR, "config.yml")
@@ -12,6 +13,8 @@ module GemChangelogDiff
       @project_dir = project_dir
     end
 
+    # Loads config from user and project files, with project taking priority.
+    # @return [Hash<Symbol, Object>]
     def load
       user_config = load_file(USER_CONFIG_PATH)
       project_config = load_file(project_config_path)

@@ -3,11 +3,17 @@
 require "timeout"
 
 module GemChangelogDiff
+  # Thread pool for fetching multiple gems in parallel.
   class ConcurrentFetcher
     def initialize(concurrency: 4)
       @concurrency = concurrency
     end
 
+    # Processes items concurrently, returning results in order.
+    # @param items [Array] items to process
+    # @yield [item] block called for each item
+    # @return [Array] results in the same order as items
+    # @raise [NetworkError] if the total timeout is exceeded
     def fetch_all(items, &)
       return items.map(&) if @concurrency <= 1
 

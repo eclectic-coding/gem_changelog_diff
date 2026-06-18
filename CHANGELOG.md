@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- YARD documentation on all public classes and methods
+- `CONTRIBUTING.md` with development setup, architecture overview, and PR requirements
+- `SECURITY.md` with vulnerability reporting instructions
+- API stability guarantee: semver contract begins at 1.0.0
+- `.yardopts` configuration and `yard` development dependency
+- `documentation_uri` in gemspec metadata
+- `gh auth token` as automatic token source for developers with GitHub CLI installed
+
 ## [0.9.0] - 2026-06-18
 
 ### Added

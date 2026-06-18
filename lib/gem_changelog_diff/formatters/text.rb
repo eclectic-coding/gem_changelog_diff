@@ -4,6 +4,7 @@ require "tty-color"
 
 module GemChangelogDiff
   module Formatters
+    # Plain text formatter with optional ANSI color output.
     class Text < Base
       BOLD = "\e[1m"
       CYAN = "\e[36m"

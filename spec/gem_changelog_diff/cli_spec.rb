@@ -576,8 +576,47 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "gh CLI token" do
+    it "reads token from gh auth token" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      status = instance_double(Process::Status, success?: true)
+      allow(Open3).to receive(:capture2).with("gh", "auth", "token").and_return(["ghp_gh_token\n", status])
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to eq("ghp_gh_token")
+    end
+
+    it "returns nil when gh is not installed" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      allow(Open3).to receive(:capture2).with("gh", "auth", "token").and_raise(Errno::ENOENT)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to be_nil
+    end
+
+    it "returns nil when gh auth token fails" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      status = instance_double(Process::Status, success?: false)
+      allow(Open3).to receive(:capture2).with("gh", "auth", "token").and_return(["", status])
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to be_nil
+    end
+  end
+
   # rubocop:disable RSpec/VerifiedDoubles -- Rails is not available in test environment
   describe "Rails credentials token" do
+    before { allow(Open3).to receive(:capture2).with("gh", "auth", "token").and_raise(Errno::ENOENT) }
+
     it "reads token from Rails credentials when available" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [])
       allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)

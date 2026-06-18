@@ -4,6 +4,7 @@ require "net/http"
 require "json"
 
 module GemChangelogDiff
+  # Parses CHANGELOG.md files from GitHub repos as a fallback source.
   class ChangelogParser
     CONTENTS_URL = "https://api.github.com/repos/%<repo>s/contents/%<path>s"
     FILENAMES = %w[CHANGELOG.md CHANGES.md History.md NEWS.md].freeze
@@ -13,6 +14,12 @@ module GemChangelogDiff
       @cache = cache
     end
 
+    # Parses changelog entries between two versions from a repo's changelog file.
+    # @param repo [String] GitHub "owner/repo" slug
+    # @param current_version [String] currently locked version (exclusive)
+    # @param newest_version [String] target version (inclusive)
+    # @return [Array<Hash>] release hashes with :tag_name, :name, :published_at, :body
+    # @raise [NetworkError] on HTTP connection failures
     def entries_between(repo, current_version, newest_version)
       content = fetch_changelog(repo)
       return [] unless content

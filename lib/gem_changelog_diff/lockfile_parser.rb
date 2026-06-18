@@ -3,11 +3,16 @@
 require "bundler"
 
 module GemChangelogDiff
+  # Detects outdated gems by comparing Gemfile.lock specs to RubyGems.
   class LockfileParser
     def initialize(rubygems_client: RubygemsClient.new)
       @rubygems_client = rubygems_client
     end
 
+    # Parses the lockfile and returns gems with newer versions available.
+    # @param lockfile_path [String] path to Gemfile.lock
+    # @return [Array<OutdatedGem>]
+    # @raise [Error] if the lockfile is not found
     def detect(lockfile_path: "Gemfile.lock")
       content = File.read(lockfile_path)
       parser = Bundler::LockfileParser.new(content)

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "open3"
 require "thor"
 
 module GemChangelogDiff
+  # Thor-based command-line interface.
   class CLI < Thor
     def self.exit_on_failure?
       true
@@ -29,6 +31,7 @@ module GemChangelogDiff
     class_option :timeout, type: :numeric, desc: "Per-request timeout in seconds (default: 10)"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
+    # @param gem_names [Array<String>] optional gem names to filter
     def check(*gem_names)
       setup_environment
       gems = filter_gems(detect_gems, gem_names)
@@ -42,6 +45,9 @@ module GemChangelogDiff
     end
 
     desc "show GEM FROM_VERSION TO_VERSION", "Show changelog between two versions of a gem"
+    # @param gem_name [String] the gem to look up
+    # @param from_version [String] current version (exclusive)
+    # @param to_version [String] target version (inclusive)
     def show(gem_name, from_version, to_version)
       setup_environment
       gem = OutdatedGem.new(name: gem_name, current_version: from_version, newest_version: to_version)
@@ -97,6 +103,7 @@ module GemChangelogDiff
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
       token ||= rails_credentials_token
+      token ||= gh_cli_token
       token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
     end
@@ -104,6 +111,14 @@ module GemChangelogDiff
     def configure_timeout
       timeout = options[:timeout] || GemChangelogDiff.configuration.request_timeout
       GemChangelogDiff.configuration.request_timeout = timeout
+    end
+
+    def gh_cli_token
+      output, status = Open3.capture2("gh", "auth", "token")
+      token = output.strip
+      token if status.success? && !token.empty?
+    rescue Errno::ENOENT
+      nil
     end
 
     def rails_credentials_token

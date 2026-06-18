@@ -317,6 +317,7 @@ module GemChangelogDiff
     def dry_run_output: (Array[OutdatedGem] gems) -> void
     def format_dry_run: (Array[OutdatedGem] gems) -> String
     def configure_timeout: () -> void
+    def gh_cli_token: () -> String?
     def rails_credentials_token: () -> String?
     def apply_interactive: (Array[OutdatedGem] gems) -> Array[OutdatedGem]
     def output_results: (Array[OutdatedGem] gems) -> Array[gem_report]

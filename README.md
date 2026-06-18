@@ -25,8 +25,10 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Concurrency](#concurrency)
   - [Exit Codes](#exit-codes)
 - [Configuration File](#configuration-file)
+- [Stability](#stability)
 - [Development](#development)
 - [Contributing](#contributing)
+- [Security](#security)
 - [License](#license)
 
 ## Installation
@@ -73,7 +75,11 @@ export GITHUB_TOKEN=ghp_your_token
 gem_changelog_diff
 ```
 
-Token resolution priority: `--token` flag → `GITHUB_TOKEN` env → Rails credentials → config file.
+Token resolution priority: `--token` flag → `GITHUB_TOKEN` env → Rails credentials → `gh auth token` → config file.
+
+#### GitHub CLI
+
+If you have the [GitHub CLI](https://cli.github.com/) installed and authenticated (`gh auth login`), the token is picked up automatically — no configuration needed.
 
 #### Rails Credentials
 
@@ -249,6 +255,14 @@ CLI flags always take priority over config file values.
 
 [Back to top](#gemchangelogdiff)
 
+## Stability
+
+Starting with version 1.0.0, this gem follows [Semantic Versioning](https://semver.org/). The public API is frozen — breaking changes require a major version bump.
+
+A future Bundler plugin (`bundler-changelog-diff`) may provide deeper integration, but the standalone CLI will remain the primary interface.
+
+[Back to top](#gemchangelogdiff)
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -259,7 +273,13 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/eclectic-coding/gem_changelog_diff.
+Bug reports and pull requests are welcome on GitHub at https://github.com/eclectic-coding/gem_changelog_diff. See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+[Back to top](#gemchangelogdiff)
+
+## Security
+
+To report a security vulnerability, see [SECURITY.md](SECURITY.md).
 
 [Back to top](#gemchangelogdiff)
 
