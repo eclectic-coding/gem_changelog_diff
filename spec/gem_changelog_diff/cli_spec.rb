@@ -365,6 +365,87 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--interactive flag" do
+    it "presents interactive selection and filters gems" do
+      sidekiq_gem = GemChangelogDiff::OutdatedGem.new(name: "sidekiq", current_version: "7.1.0",
+                                                      newest_version: "7.2.0")
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem, sidekiq_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      interactive = instance_double(GemChangelogDiff::Interactive)
+      allow(GemChangelogDiff::Interactive).to receive(:new).and_return(interactive)
+      allow(interactive).to receive(:select).and_return([rails_gem])
+
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).and_return(nil)
+
+      output = capture_output { described_class.start(["check", "--interactive"]) }
+
+      expect(output).to include("rails")
+      expect(output).not_to include("sidekiq")
+    end
+
+    it "prints message when no gems selected" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      interactive = instance_double(GemChangelogDiff::Interactive)
+      allow(GemChangelogDiff::Interactive).to receive(:new).and_return(interactive)
+      allow(interactive).to receive(:select).and_return([])
+
+      output = capture_output { described_class.start(["check", "--interactive"]) }
+
+      expect(output).to include("No gems selected.")
+    end
+  end
+
+  describe "#show" do
+    it "shows changelog for a specific gem" do
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(source_resolver).to receive(:resolve)
+        .with("rails/rails", "7.0.8", "7.1.3")
+        .and_return([{ tag_name: "v7.1.3", name: "7.1.3",
+                       published_at: "2024-02-21T00:00:00Z", body: "Bug fixes" }])
+
+      output = capture_output { described_class.start(["show", "rails", "7.0.8", "7.1.3"]) }
+
+      expect(output).to include("rails (7.0.8 → 7.1.3)")
+      expect(output).to include("Bug fixes")
+    end
+
+    it "shows error when repo not found" do
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).with("mygem").and_return(nil)
+
+      output = capture_output { described_class.start(["show", "mygem", "1.0.0", "2.0.0"]) }
+
+      expect(output).to include("Could not find GitHub repository.")
+    end
+
+    it "supports --format json" do
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(source_resolver).to receive(:resolve).and_return([])
+
+      output = capture_output { described_class.start(["show", "rails", "7.0.8", "7.1.3", "--format", "json"]) }
+
+      parsed = JSON.parse(output)
+      expect(parsed["gems"].first["gem"]["name"]).to eq("rails")
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true
