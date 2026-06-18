@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "timeout"
+
 module GemChangelogDiff
   class ConcurrentFetcher
     def initialize(concurrency: 4)
@@ -9,6 +11,15 @@ module GemChangelogDiff
     def fetch_all(items, &)
       return items.map(&) if @concurrency <= 1
 
+      total_timeout = GemChangelogDiff.configuration.total_timeout
+      Timeout.timeout(total_timeout, NetworkError, "Total timeout of #{total_timeout}s exceeded") do
+        run_workers(items, &)
+      end
+    end
+
+    private
+
+    def run_workers(items, &)
       results = Array.new(items.size)
       queue = Queue.new
       items.each_with_index { |item, i| queue << [item, i] }
@@ -17,8 +28,6 @@ module GemChangelogDiff
       threads.each(&:join)
       results
     end
-
-    private
 
     def spawn_workers(queue, results, &block)
       worker_count = [@concurrency, queue.size].min

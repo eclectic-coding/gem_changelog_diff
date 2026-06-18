@@ -26,13 +26,12 @@ module GemChangelogDiff
     class_option :interactive, type: :boolean, default: false, aliases: "-i",
                                desc: "Interactively select gems to check"
     class_option :dry_run, type: :boolean, default: false, desc: "Show which gems would be checked"
+    class_option :timeout, type: :numeric, desc: "Per-request timeout in seconds (default: 10)"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
-      load_config
-      configure_token
-      gems = detect_gems
-      gems = filter_gems(gems, gem_names)
+      setup_environment
+      gems = filter_gems(detect_gems, gem_names)
       return say("All gems are up to date!") if gems.empty?
 
       gems = Interactive.new(gems: gems).select if options[:interactive]
@@ -44,8 +43,7 @@ module GemChangelogDiff
 
     desc "show GEM FROM_VERSION TO_VERSION", "Show changelog between two versions of a gem"
     def show(gem_name, from_version, to_version)
-      load_config
-      configure_token
+      setup_environment
       gem = OutdatedGem.new(name: gem_name, current_version: from_version, newest_version: to_version)
       report = build_single_report(gem)
       formatter = Formatters.build(format: resolved_format, color: color_enabled?)
@@ -84,6 +82,12 @@ module GemChangelogDiff
 
     private
 
+    def setup_environment
+      load_config
+      configure_token
+      configure_timeout
+    end
+
     def load_config
       config = ConfigLoader.new.load
       GemChangelogDiff.configuration.apply(config)
@@ -94,6 +98,11 @@ module GemChangelogDiff
       token ||= rails_credentials_token
       token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
+    end
+
+    def configure_timeout
+      timeout = options[:timeout] || GemChangelogDiff.configuration.request_timeout
+      GemChangelogDiff.configuration.request_timeout = timeout
     end
 
     def rails_credentials_token
@@ -157,15 +166,26 @@ module GemChangelogDiff
 
     def build_gem_report(gem, rubygems_client, source_resolver)
       log "Checking #{gem.name}..."
+      fetch_gem_releases(gem, rubygems_client, source_resolver)
+    rescue GemChangelogDiff::Error => e
+      log_warning "  Skipping #{gem.name}: #{e.message}"
+      gem_error(gem, e.message)
+    rescue JSON::ParserError => e
+      log_warning "  Skipping #{gem.name}: malformed API response"
+      gem_error(gem, "Malformed API response: #{e.message}")
+    end
+
+    def fetch_gem_releases(gem, rubygems_client, source_resolver)
       repo = rubygems_client.repo_url(gem.name)
-      return { gem: gem, releases: [], error: "  Could not determine source repository." } if repo.nil?
+      return gem_error(gem, "Could not determine source repository.") unless repo
 
       log "  Found repo: #{repo}"
       releases = source_resolver.resolve(repo, gem.current_version, gem.newest_version)
       { gem: gem, releases: releases }
-    rescue GemChangelogDiff::Error => e
-      log_warning "  Skipping #{gem.name}: #{e.message}"
-      { gem: gem, releases: [], error: "  #{e.message}" }
+    end
+
+    def gem_error(gem, message)
+      { gem: gem, releases: [], error: "  #{message}" }
     end
 
     def with_spinner
@@ -257,6 +277,12 @@ module GemChangelogDiff
 
         # Disable colored output
         # no_color: false
+
+        # Per-request timeout in seconds (default: 10)
+        # request_timeout: 10
+
+        # Total timeout in seconds (default: 120)
+        # total_timeout: 120
       YAML
     end
 

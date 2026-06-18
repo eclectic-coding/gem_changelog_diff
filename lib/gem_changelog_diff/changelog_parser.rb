@@ -19,7 +19,9 @@ module GemChangelogDiff
 
       parse_entries(content, current_version, newest_version)
     rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
-           Net::OpenTimeout, Net::ReadTimeout => e
+           Errno::ETIMEDOUT, Errno::ECONNRESET,
+           Net::OpenTimeout, Net::ReadTimeout,
+           OpenSSL::SSL::SSLError => e
       raise NetworkError, "GitHub API request failed: #{e.message}"
     end
 
@@ -47,9 +49,13 @@ module GemChangelogDiff
       headers = request_headers
       return @cache.get(uri, headers: headers) if @cache
 
+      timeout = GemChangelogDiff.configuration.request_timeout
       request = Net::HTTP::Get.new(uri)
       headers.each { |k, v| request[k] = v }
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+      Net::HTTP.start(uri.hostname, uri.port,
+                      use_ssl: true, open_timeout: timeout, read_timeout: timeout) do |http|
+        http.request(request)
+      end
     end
 
     def request_headers
@@ -63,19 +69,26 @@ module GemChangelogDiff
     end
 
     def parse_entries(content, current_version, newest_version)
-      current = Gem::Version.new(current_version)
-      newest = Gem::Version.new(newest_version)
-      sections = split_sections(content)
+      current = safe_gem_version(current_version)
+      newest = safe_gem_version(newest_version)
+      return [] unless current && newest
 
+      sections = split_sections(content)
       matched = sections.filter_map { |v, body| build_entry(v, body, current, newest) }
-      matched.sort_by { |e| Gem::Version.new(e[:tag_name]) }.reverse
+      matched.sort_by { |e| safe_gem_version(e[:tag_name]) || Gem::Version.new("0") }.reverse
     end
 
     def build_entry(version_str, body, current, newest)
-      gem_version = Gem::Version.new(version_str)
-      return unless gem_version > current && gem_version <= newest
+      gem_version = safe_gem_version(version_str)
+      return unless gem_version && gem_version > current && gem_version <= newest
 
       { tag_name: version_str, name: version_str, published_at: nil, body: body.strip }
+    end
+
+    def safe_gem_version(version_str)
+      Gem::Version.new(version_str)
+    rescue ArgumentError
+      nil
     end
 
     def split_sections(content)

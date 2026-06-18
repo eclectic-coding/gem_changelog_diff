@@ -84,10 +84,13 @@ module GemChangelogDiff
     end
 
     def fetch_from_network(uri, headers)
+      timeout = GemChangelogDiff.configuration.request_timeout
       request = Net::HTTP::Get.new(uri)
       headers.each { |k, v| request[k] = v }
 
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
+      Net::HTTP.start(uri.hostname, uri.port,
+                      use_ssl: uri.scheme == "https",
+                      open_timeout: timeout, read_timeout: timeout) do |http|
         http.request(request)
       end
     end

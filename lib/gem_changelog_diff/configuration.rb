@@ -3,9 +3,11 @@
 module GemChangelogDiff
   class Configuration
     attr_accessor :github_token, :cache_enabled, :cache_ttl,
-                  :default_format, :concurrency, :ignore_gems, :no_color
+                  :default_format, :concurrency, :ignore_gems, :no_color,
+                  :request_timeout, :total_timeout
 
-    VALID_KEYS = %i[github_token cache_enabled cache_ttl default_format concurrency ignore_gems no_color].freeze
+    VALID_KEYS = %i[github_token cache_enabled cache_ttl default_format concurrency
+                    ignore_gems no_color request_timeout total_timeout].freeze
 
     def initialize
       @cache_enabled = true
@@ -14,6 +16,8 @@ module GemChangelogDiff
       @concurrency = 4
       @ignore_gems = []
       @no_color = false
+      @request_timeout = 10
+      @total_timeout = 120
     end
 
     def apply(hash)

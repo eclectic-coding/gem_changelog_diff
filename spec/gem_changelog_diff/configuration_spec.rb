@@ -52,6 +52,14 @@ RSpec.describe GemChangelogDiff::Configuration do
     it "defaults no_color to false" do
       expect(described_class.new.no_color).to be false
     end
+
+    it "defaults request_timeout to 10" do
+      expect(described_class.new.request_timeout).to eq(10)
+    end
+
+    it "defaults total_timeout to 120" do
+      expect(described_class.new.total_timeout).to eq(120)
+    end
   end
 
   describe "#apply" do

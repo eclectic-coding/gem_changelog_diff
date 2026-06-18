@@ -547,6 +547,33 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--timeout flag" do
+    it "sets the request timeout" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      capture_output { described_class.start(["check", "--timeout", "30"]) }
+
+      expect(GemChangelogDiff.configuration.request_timeout).to eq(30)
+    end
+  end
+
+  describe "JSON::ParserError handling" do
+    it "catches malformed API responses" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url)
+        .and_raise(JSON::ParserError, "unexpected token")
+
+      output = capture_output { described_class.start(["check"]) }
+
+      expect(output).to include("Malformed API response")
+    end
+  end
+
   describe "Rails credentials token" do
     it "reads token from Rails credentials when available" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [])

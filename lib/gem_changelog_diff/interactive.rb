@@ -10,7 +10,8 @@ module GemChangelogDiff
 
     def select
       prompt = TTY::Prompt.new
-      prompt.multi_select("Select gems to check:", per_page: 15) do |menu|
+      prompt.multi_select("Select gems to check:",
+                          per_page: 15, help: "(Space to select, Enter to confirm)") do |menu|
         @gems.each do |gem|
           menu.choice "#{gem.name} (#{gem.current_version} → #{gem.newest_version})", gem
         end
