@@ -16,11 +16,14 @@ module GemChangelogDiff
     class_option :no_color, type: :boolean, default: false, desc: "Disable colored output"
     class_option :lockfile, type: :string, desc: "Path to Gemfile.lock"
     class_option :strategy, type: :string, default: "auto", desc: "Detection strategy (auto, outdated, lockfile)"
+    class_option :group, type: :string, desc: "Filter by Bundler group"
+    class_option :ignore, type: :array, desc: "Gems to skip"
 
-    desc "check", "Show changelog diffs for outdated gems"
-    def check
+    desc "check [GEM...]", "Show changelog diffs for outdated gems"
+    def check(*gem_names)
       configure_token
       gems = detect_gems
+      gems = filter_gems(gems, gem_names)
 
       if gems.empty?
         say "All gems are up to date!"
@@ -51,14 +54,14 @@ module GemChangelogDiff
       when "lockfile"
         detect_via_lockfile
       when "outdated"
-        Detector.new.detect
+        Detector.new(group: options[:group]).detect
       else
         detect_with_fallback
       end
     end
 
     def detect_with_fallback
-      Detector.new.detect
+      Detector.new(group: options[:group]).detect
     rescue Error
       log_warning "  bundle outdated failed, falling back to lockfile parsing..."
       detect_via_lockfile
@@ -67,6 +70,16 @@ module GemChangelogDiff
     def detect_via_lockfile
       lockfile_path = options[:lockfile] || "Gemfile.lock"
       LockfileParser.new.detect(lockfile_path: lockfile_path)
+    end
+
+    def filter_gems(gems, gem_names)
+      gems = gems.select { |g| gem_names.include?(g.name) } if gem_names.any?
+      gems = gems.reject { |g| ignore_list.include?(g.name) } if ignore_list.any?
+      gems
+    end
+
+    def ignore_list
+      @ignore_list ||= options[:ignore] || []
     end
 
     def build_reports(gems)

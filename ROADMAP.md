@@ -2,17 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.4.0 -- Lockfile Parsing Fallback & Filtering
-
-Support environments where `bundle outdated` is unavailable. Let users narrow which gems to inspect.
-
-- Positional args to inspect specific gems: `gem_changelog_diff check rails sidekiq`
-- `--group` and `--ignore` flags
-
-**New files:** `lockfile_parser.rb`
-
----
-
 ## 0.5.0 -- Caching & Performance
 
 Avoid redundant API calls. Make repeated runs fast on large dependency trees.

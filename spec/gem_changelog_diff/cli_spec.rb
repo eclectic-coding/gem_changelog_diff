@@ -206,6 +206,57 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "positional gem args" do
+    it "filters to only named gems" do
+      sidekiq_gem = GemChangelogDiff::OutdatedGem.new(name: "sidekiq", current_version: "7.1.0",
+                                                      newest_version: "7.2.0")
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem, sidekiq_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).and_return(nil)
+
+      output = capture_output { described_class.start(["check", "rails"]) }
+
+      expect(output).to include("rails")
+      expect(output).not_to include("sidekiq")
+    end
+  end
+
+  describe "--ignore flag" do
+    it "excludes ignored gems" do
+      sidekiq_gem = GemChangelogDiff::OutdatedGem.new(name: "sidekiq", current_version: "7.1.0",
+                                                      newest_version: "7.2.0")
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem, sidekiq_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).and_return(nil)
+
+      output = capture_output { described_class.start(["check", "--ignore", "rails"]) }
+
+      expect(output).not_to include("rails")
+      expect(output).to include("sidekiq")
+    end
+  end
+
+  describe "--group flag" do
+    it "passes group to Detector" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).with(group: "development").and_return(detector)
+
+      capture_output { described_class.start(["check", "--group", "development"]) }
+
+      expect(GemChangelogDiff::Detector).to have_received(:new).with(group: "development")
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true

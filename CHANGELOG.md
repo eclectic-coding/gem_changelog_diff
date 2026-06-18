@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic fallback to lockfile parsing when `bundle outdated` is unavailable
 - `--strategy` flag: `auto` (default), `outdated`, or `lockfile`
 - `--lockfile` flag for custom lockfile path
+- Positional arguments to inspect specific gems: `gem_changelog_diff check rails sidekiq`
+- `--group` flag to filter by Bundler group
+- `--ignore` flag to exclude specific gems
 
 ## [0.3.0] - 2026-06-18
 
