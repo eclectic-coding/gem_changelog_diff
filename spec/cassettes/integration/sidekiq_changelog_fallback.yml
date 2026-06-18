@@ -1,0 +1,507 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://rubygems.org/api/v1/gems/sidekiq.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - rubygems.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1492'
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET
+      Access-Control-Max-Age:
+      - '1728000'
+      Cache-Control:
+      - max-age=60, public
+      X-Request-Id:
+      - 9f9a5d19-5bda-4595-831c-a84804ad56c0
+      X-Runtime:
+      - '0.016500'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Backend:
+      - F_Rails 35.155.124.57:443
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '3580'
+      Date:
+      - Thu, 18 Jun 2026 16:16:33 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kiad7000149-IAD
+      X-Cache:
+      - HIT
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1781799394.673486,VS0,VE1
+      Vary:
+      - Accept-Encoding
+      Server:
+      - RubyGems.org
+    body:
+      encoding: ASCII-8BIT
+      string: '{"name":"sidekiq","downloads":321017045,"version":"8.1.6","version_created_at":"2026-05-27T16:41:48.796Z","version_downloads":291189,"platform":"ruby","authors":"Mike
+        Perham","info":"Simple, efficient background processing for Ruby.","licenses":["LGPL-3.0"],"metadata":{"homepage_uri":"https://sidekiq.org","changelog_uri":"https://github.com/sidekiq/sidekiq/blob/main/Changes.md","bug_tracker_uri":"https://github.com/sidekiq/sidekiq/issues","source_code_uri":"https://github.com/sidekiq/sidekiq","documentation_uri":"https://github.com/sidekiq/sidekiq/wiki","rubygems_mfa_required":"true"},"yanked":false,"sha":"be20cd051124b1a16cf97ea9157137abbd30a515c16a5ae9312d2eadd045e40f","spec_sha":"3c5af8cd4927208b4e42254fb7026cbe8cab1f07b44cf227f212cc56a05fadce","project_uri":"https://rubygems.org/gems/sidekiq","gem_uri":"https://rubygems.org/gems/sidekiq-8.1.6.gem","homepage_uri":"https://sidekiq.org","wiki_uri":null,"documentation_uri":"https://github.com/sidekiq/sidekiq/wiki","mailing_list_uri":null,"source_code_uri":"https://github.com/sidekiq/sidekiq","bug_tracker_uri":"https://github.com/sidekiq/sidekiq/issues","changelog_uri":"https://github.com/sidekiq/sidekiq/blob/main/Changes.md","funding_uri":null,"dependencies":{"development":[],"runtime":[{"name":"connection_pool","requirements":">=
+        3.0.0"},{"name":"json","requirements":">= 2.16.0"},{"name":"logger","requirements":">=
+        1.7.0"},{"name":"rack","requirements":">= 3.2.0"},{"name":"redis-client","requirements":">=
+        0.29.0"}]}}'
+  recorded_at: Thu, 18 Jun 2026 16:16:33 GMT
+- request:
+    method: head
+    uri: https://api.github.com/repos/sidekiq/sidekiq
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - public, max-age=60, s-maxage=60
+      Vary:
+      - Accept,Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"ccd9e08230c7b0514207d04e4cdb8ecc08d18b292d3fd9256786ee90c071b8d8"
+      Last-Modified:
+      - Thu, 18 Jun 2026 08:37:27 GMT
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset, Warning
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Encoding:
+      - gzip
+      Server:
+      - github.com
+      Accept-Ranges:
+      - bytes
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '30'
+      X-Ratelimit-Used:
+      - '30'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      Content-Length:
+      - '1423'
+      X-Github-Request-Id:
+      - F3EE:E0CC7:85F9893:1F04B1D9:6A3419E1
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Thu, 18 Jun 2026 16:16:33 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/sidekiq/sidekiq/releases?page=1&per_page=100
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '2'
+      Cache-Control:
+      - public, max-age=60, s-maxage=60
+      Vary:
+      - Accept,Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - '"d41c935eb5c029c094b396655d6701ed2035fea14feb9434d73918c953bbc336"'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset, Warning
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      Server:
+      - github.com
+      Accept-Ranges:
+      - bytes
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '29'
+      X-Ratelimit-Used:
+      - '31'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      X-Github-Request-Id:
+      - F20C:12E996:7FC2F01:1DAA47BE:6A3419E1
+    body:
+      encoding: UTF-8
+      string: "[]"
+  recorded_at: Thu, 18 Jun 2026 16:16:33 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/sidekiq/sidekiq/contents/CHANGELOG.md
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Content-Length:
+      - '127'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Xss-Protection:
+      - '0'
+      Server:
+      - github.com
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '28'
+      X-Ratelimit-Used:
+      - '32'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      X-Github-Request-Id:
+      - F081:274546:7CBEC9B:1CFA7D81:6A3419E1
+    body:
+      encoding: UTF-8
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/contents#get-repository-content","status":"404"}'
+  recorded_at: Thu, 18 Jun 2026 16:16:33 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/sidekiq/sidekiq/contents/CHANGES.md
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Content-Length:
+      - '127'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Xss-Protection:
+      - '0'
+      Server:
+      - github.com
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '27'
+      X-Ratelimit-Used:
+      - '33'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      X-Github-Request-Id:
+      - F262:31A545:849882F:1E3A945D:6A3419E1
+    body:
+      encoding: UTF-8
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/contents#get-repository-content","status":"404"}'
+  recorded_at: Thu, 18 Jun 2026 16:16:33 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/sidekiq/sidekiq/contents/History.md
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Content-Length:
+      - '127'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Xss-Protection:
+      - '0'
+      Server:
+      - github.com
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '26'
+      X-Ratelimit-Used:
+      - '34'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      X-Github-Request-Id:
+      - F2C6:11804F:7D9FF21:1D3A8632:6A3419E2
+    body:
+      encoding: UTF-8
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/contents#get-repository-content","status":"404"}'
+  recorded_at: Thu, 18 Jun 2026 16:16:34 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/sidekiq/sidekiq/contents/NEWS.md
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - gem_changelog_diff/0.8.0
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Content-Length:
+      - '127'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 18 Jun 2026 16:15:54 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Xss-Protection:
+      - '0'
+      Server:
+      - github.com
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '25'
+      X-Ratelimit-Used:
+      - '35'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Reset:
+      - '1781802845'
+      X-Github-Request-Id:
+      - F342:32C8AC:7C518F1:1CCEBA8B:6A3419E2
+    body:
+      encoding: UTF-8
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/repos/contents#get-repository-content","status":"404"}'
+  recorded_at: Thu, 18 Jun 2026 16:16:34 GMT
+recorded_with: VCR 6.4.0

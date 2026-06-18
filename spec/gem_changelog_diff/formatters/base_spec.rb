@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable RSpec/MultipleDescribes -- Base and Formatters.build are tightly related
 RSpec.describe GemChangelogDiff::Formatters::Base do
   describe "#format" do
     it "raises NotImplementedError" do
@@ -35,3 +36,4 @@ RSpec.describe GemChangelogDiff::Formatters do
     end
   end
 end
+# rubocop:enable RSpec/MultipleDescribes

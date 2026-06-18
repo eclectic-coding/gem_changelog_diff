@@ -119,6 +119,7 @@ module GemChangelogDiff
     def extract_github_slug: (Array[String] uris) -> String?
     def follow_redirects: (String slug, ?Integer remaining) -> String
     def execute_head_request: (URI::Generic uri) -> (Net::HTTPResponse)
+    def extract_slug_from_location: (String? location) -> String?
     def request_headers: () -> Hash[String, String]
   end
 
@@ -204,6 +205,8 @@ module GemChangelogDiff
     private
 
     def fetch_releases: (String repo, ?String? current_version) -> Array[Hash[String, untyped]]
+    def paginate_releases: (String repo, Gem::Version? current) -> Array[Hash[String, untyped]]
+    def fetch_release_page: (String repo, Integer page) -> [(Net::HTTPResponse | CachedResponse), Array[Hash[String, untyped]]]
     def build_releases_uri: (String repo, Integer page) -> URI::Generic
     def next_page?: ((Net::HTTPResponse | CachedResponse) response) -> bool
     def oldest_before_current?: (Array[Hash[String, untyped]] releases, Gem::Version current) -> bool
@@ -325,6 +328,9 @@ module GemChangelogDiff
     def ignore_list: () -> Array[String]
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
+    def setup_environment: () -> void
+    def fetch_gem_releases: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
+    def gem_error: (OutdatedGem gem, String message) -> gem_report
     def write_output: (String text) -> void
     def log: (String message) -> void
     def log_warning: (String message) -> void

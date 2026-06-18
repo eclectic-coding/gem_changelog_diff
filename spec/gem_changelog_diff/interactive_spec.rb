@@ -12,7 +12,7 @@ RSpec.describe GemChangelogDiff::Interactive do
   end
 
   let(:prompt) { instance_double(TTY::Prompt) }
-  let(:menu) { double("menu") }
+  let(:menu) { double("menu") } # rubocop:disable RSpec/VerifiedDoubles -- TTY::Prompt yields opaque menu object
 
   before do
     allow(TTY::Prompt).to receive(:new).and_return(prompt)

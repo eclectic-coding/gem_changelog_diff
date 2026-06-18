@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.describe GemChangelogDiff::LockfileParser do
-  let(:rubygems_client) { instance_double(GemChangelogDiff::RubygemsClient) }
-
   subject(:parser) { described_class.new(rubygems_client: rubygems_client) }
 
+  let(:rubygems_client) { instance_double(GemChangelogDiff::RubygemsClient) }
   let(:lockfile_content) do
     <<~LOCKFILE
       GEM

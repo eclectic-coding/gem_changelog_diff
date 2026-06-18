@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-RSpec.describe "GemChangelogDiff error hierarchy" do
+RSpec.describe GemChangelogDiff::Error do
   it "RepoNotFoundError inherits from Error" do
-    expect(GemChangelogDiff::RepoNotFoundError).to be < GemChangelogDiff::Error
+    expect(GemChangelogDiff::RepoNotFoundError).to be < described_class
   end
 
   it "GitHubAPIError inherits from Error" do
-    expect(GemChangelogDiff::GitHubAPIError).to be < GemChangelogDiff::Error
+    expect(GemChangelogDiff::GitHubAPIError).to be < described_class
   end
 
   it "RateLimitError inherits from GitHubAPIError" do
@@ -14,6 +14,6 @@ RSpec.describe "GemChangelogDiff error hierarchy" do
   end
 
   it "NetworkError inherits from Error" do
-    expect(GemChangelogDiff::NetworkError).to be < GemChangelogDiff::Error
+    expect(GemChangelogDiff::NetworkError).to be < described_class
   end
 end
