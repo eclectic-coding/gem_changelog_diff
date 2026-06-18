@@ -37,6 +37,7 @@ module GemChangelogDiff
   class Detector
     PARSEABLE_REGEX: Regexp
 
+    def initialize: (?group: String?) -> void
     def detect: () -> Array[OutdatedGem]
 
     private
@@ -158,6 +159,8 @@ module GemChangelogDiff
     def detect_gems: () -> Array[OutdatedGem]
     def detect_with_fallback: () -> Array[OutdatedGem]
     def detect_via_lockfile: () -> Array[OutdatedGem]
+    def filter_gems: (Array[OutdatedGem] gems, Array[String] gem_names) -> Array[OutdatedGem]
+    def ignore_list: () -> Array[String]
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
     def log: (String message) -> void

@@ -40,6 +40,21 @@ RSpec.describe GemChangelogDiff::Detector do
       end
     end
 
+    context "with a group filter" do
+      it "passes --group to bundle outdated" do
+        detector_with_group = described_class.new(group: "development")
+        status = instance_double(Process::Status, exitstatus: 0)
+        allow(Open3).to receive(:capture2)
+          .with("bundle", "outdated", "--parseable", "--group", "development")
+          .and_return(["", status])
+
+        detector_with_group.detect
+
+        expect(Open3).to have_received(:capture2)
+          .with("bundle", "outdated", "--parseable", "--group", "development")
+      end
+    end
+
     context "with non-matching lines in output" do
       it "skips blank lines and progress messages" do
         output = <<~OUTPUT

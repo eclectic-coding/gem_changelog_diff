@@ -13,8 +13,15 @@ module GemChangelogDiff
 
     private
 
+    def initialize(group: nil)
+      @group = group
+    end
+
     def run_bundle_outdated
-      output, status = Open3.capture2("bundle", "outdated", "--parseable")
+      cmd = ["bundle", "outdated", "--parseable"]
+      cmd.push("--group", @group) if @group
+
+      output, status = Open3.capture2(*cmd)
       raise Error, "bundle outdated failed (exit #{status.exitstatus})" unless [0, 1].include?(status.exitstatus)
 
       output
