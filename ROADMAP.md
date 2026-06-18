@@ -6,7 +6,6 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Handle the long tail of real-world gem repository patterns.
 
-- Source URI resolution: detect and skip GitLab/Codeberg gracefully, follow redirects for renamed repos, handle monorepo subdirectory URIs
 - Tag format normalization: `v1.2.3`, `1.2.3`, `gem_name-1.2.3`, `release-1.2.3`
 - Proper version comparison via `Gem::Version` (handles pre-release: `1.0.0.rc1`, `1.0.0.beta2`)
 - GitHub API pagination for gems with 100+ releases

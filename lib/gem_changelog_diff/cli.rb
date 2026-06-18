@@ -158,7 +158,7 @@ module GemChangelogDiff
     def build_gem_report(gem, rubygems_client, source_resolver)
       log "Checking #{gem.name}..."
       repo = rubygems_client.repo_url(gem.name)
-      return { gem: gem, releases: [], error: "  Could not find GitHub repository." } if repo.nil?
+      return { gem: gem, releases: [], error: "  Could not determine source repository." } if repo.nil?
 
       log "  Found repo: #{repo}"
       releases = source_resolver.resolve(repo, gem.current_version, gem.newest_version)

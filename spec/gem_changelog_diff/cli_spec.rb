@@ -52,7 +52,23 @@ RSpec.describe GemChangelogDiff::CLI do
 
         output = capture_output { described_class.start(["check"]) }
 
-        expect(output).to include("Could not find GitHub repository.")
+        expect(output).to include("Could not determine source repository.")
+      end
+    end
+
+    context "when a gem is hosted on a non-GitHub platform" do
+      it "skips the gem with an informative message" do
+        detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+        rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+        allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+        allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+        allow(rubygems_client).to receive(:repo_url)
+          .and_raise(GemChangelogDiff::RepoNotFoundError, "hosted on GitLab (not supported)")
+
+        output = capture_output { described_class.start(["check"]) }
+
+        expect(output).to include("hosted on GitLab (not supported)")
       end
     end
 
@@ -427,7 +443,7 @@ RSpec.describe GemChangelogDiff::CLI do
 
       output = capture_output { described_class.start(["show", "mygem", "1.0.0", "2.0.0"]) }
 
-      expect(output).to include("Could not find GitHub repository.")
+      expect(output).to include("Could not determine source repository.")
     end
 
     it "supports --format json" do

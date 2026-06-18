@@ -55,6 +55,10 @@ gem_changelog_diff version    # Print version
 gem_changelog_diff --version  # Same as above
 ```
 
+### Non-GitHub Gems
+
+Gems hosted on GitHub are fully supported. Gems on other platforms (GitLab, Codeberg, Bitbucket, SourceHut) are detected and skipped with an informative message. Renamed GitHub repositories are followed automatically via redirect.
+
 ### GitHub Authentication
 
 To avoid the 60 requests/hour unauthenticated rate limit, provide a GitHub personal access token:
