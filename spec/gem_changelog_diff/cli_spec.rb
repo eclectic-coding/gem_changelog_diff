@@ -257,6 +257,32 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "progress spinner" do
+    before { require "tty-spinner" }
+
+    it "shows spinner when stderr is a tty" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).and_return(nil)
+      allow($stderr).to receive(:tty?).and_return(true)
+
+      spinner = instance_double(TTY::Spinner)
+      allow(TTY::Spinner).to receive(:new).and_return(spinner)
+      allow(spinner).to receive(:auto_spin)
+      allow(spinner).to receive(:stop)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(spinner).to have_received(:auto_spin)
+      expect(spinner).to have_received(:stop).with("Done!")
+    end
+  end
+
   describe "#cache" do
     it "clears the cache" do
       cache_instance = instance_double(GemChangelogDiff::Cache)

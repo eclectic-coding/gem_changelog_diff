@@ -20,6 +20,7 @@ module GemChangelogDiff
     class_option :ignore, type: :array, desc: "Gems to skip"
     class_option :no_cache, type: :boolean, default: false, desc: "Disable caching"
     class_option :cache_ttl, type: :numeric, desc: "Cache TTL in seconds"
+    class_option :concurrency, type: :numeric, default: 4, desc: "Number of concurrent fetches"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
@@ -32,7 +33,7 @@ module GemChangelogDiff
         return
       end
 
-      reports = build_reports(gems)
+      reports = with_spinner { build_reports(gems) }
       formatter = Formatter.new(color: color_enabled?)
       say formatter.format(reports)
     end
@@ -108,8 +109,9 @@ module GemChangelogDiff
         github_client: GithubClient.new(cache: cache),
         changelog_parser: ChangelogParser.new(cache: cache)
       )
+      fetcher = ConcurrentFetcher.new(concurrency: options[:concurrency])
 
-      gems.map { |gem| build_gem_report(gem, rubygems_client, source_resolver) }
+      fetcher.fetch_all(gems) { |gem| build_gem_report(gem, rubygems_client, source_resolver) }
     end
 
     def build_gem_report(gem, rubygems_client, source_resolver)
@@ -123,6 +125,18 @@ module GemChangelogDiff
     rescue GemChangelogDiff::Error => e
       log_warning "  Skipping #{gem.name}: #{e.message}"
       { gem: gem, releases: [], error: "  #{e.message}" }
+    end
+
+    def with_spinner
+      unless options[:quiet] || !$stderr.tty?
+        require "tty-spinner"
+        spinner = TTY::Spinner.new("[:spinner] Fetching changelogs...", format: :dots, output: $stderr)
+        spinner.auto_spin
+      end
+
+      result = yield
+      spinner&.stop("Done!")
+      result
     end
 
     def color_enabled?
