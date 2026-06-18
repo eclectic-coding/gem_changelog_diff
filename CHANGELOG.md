@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Formatter class hierarchy: `Formatters::Text`, `Formatters::Json`, `Formatters::Markdown`
+- `--format` flag: `text` (default), `json`, or `markdown`
+- JSON output (`--format json`) for piping to `jq` or CI tools
+- Markdown output (`--format markdown`) for PR descriptions
+- `--output` flag to write formatted output to a file
+
 ## [0.5.0] - 2026-06-18
 
 ### Added
