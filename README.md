@@ -75,7 +75,11 @@ export GITHUB_TOKEN=ghp_your_token
 gem_changelog_diff
 ```
 
-Token resolution priority: `--token` flag → `GITHUB_TOKEN` env → Rails credentials → config file.
+Token resolution priority: `--token` flag → `GITHUB_TOKEN` env → `gh auth token` → Rails credentials → config file.
+
+#### GitHub CLI
+
+If you have the [GitHub CLI](https://cli.github.com/) installed and authenticated (`gh auth login`), the token is picked up automatically — no configuration needed.
 
 #### Rails Credentials
 

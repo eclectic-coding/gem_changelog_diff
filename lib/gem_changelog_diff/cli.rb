@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "open3"
 require "thor"
 
 module GemChangelogDiff
@@ -101,6 +102,7 @@ module GemChangelogDiff
 
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
+      token ||= gh_cli_token
       token ||= rails_credentials_token
       token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
@@ -109,6 +111,14 @@ module GemChangelogDiff
     def configure_timeout
       timeout = options[:timeout] || GemChangelogDiff.configuration.request_timeout
       GemChangelogDiff.configuration.request_timeout = timeout
+    end
+
+    def gh_cli_token
+      output, status = Open3.capture2("gh", "auth", "token")
+      token = output.strip
+      token if status.success? && !token.empty?
+    rescue Errno::ENOENT
+      nil
     end
 
     def rails_credentials_token
