@@ -7,12 +7,9 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 Let users selectively browse changelogs. Support machine-readable output for CI and scripting.
 
 - Interactive gem selection via `tty-prompt` (`--interactive` / `-i` flag)
-- JSON output (`--format=json`) for piping to `jq` or CI tools
-- Markdown output (`--format=markdown`) for PR descriptions
 - `show` subcommand: `gem_changelog_diff show rails 7.0.0 7.1.0`
-- `--output` flag to write to a file
 
-**New files:** `interactive.rb`, `formatters/base.rb`, `formatters/text.rb`, `formatters/json.rb`, `formatters/markdown.rb`
+**New files:** `interactive.rb`
 **Dependencies:** `tty-prompt` (runtime)
 
 ---

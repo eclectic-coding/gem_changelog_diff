@@ -13,6 +13,7 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
 - [Installation](#installation)
 - [Usage](#usage)
   - [GitHub Authentication](#github-authentication)
+  - [Output Formats](#output-formats)
   - [Output Control](#output-control)
   - [Detection Strategy](#detection-strategy)
   - [Filtering](#filtering)
@@ -59,6 +60,15 @@ gem_changelog_diff --token ghp_your_token
 # or
 export GITHUB_TOKEN=ghp_your_token
 gem_changelog_diff
+```
+
+### Output Formats
+
+```bash
+gem_changelog_diff --format text      # Plain text with ANSI colors (default)
+gem_changelog_diff --format json      # JSON for piping to jq or CI tools
+gem_changelog_diff --format markdown  # Markdown for PR descriptions
+gem_changelog_diff --output report.md --format markdown  # Write to a file
 ```
 
 ### Output Control

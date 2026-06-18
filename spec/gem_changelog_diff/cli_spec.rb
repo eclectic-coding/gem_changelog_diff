@@ -302,6 +302,69 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--format json" do
+    it "outputs valid JSON" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(source_resolver).to receive(:resolve)
+        .with("rails/rails", "7.0.8", "7.1.3")
+        .and_return([{ tag_name: "v7.1.3", name: "7.1.3",
+                       published_at: "2024-02-21T00:00:00Z", body: "Bug fixes" }])
+
+      output = capture_output { described_class.start(["check", "--format", "json"]) }
+
+      parsed = JSON.parse(output)
+      expect(parsed["gems"].first["gem"]["name"]).to eq("rails")
+    end
+  end
+
+  describe "--format markdown" do
+    it "outputs markdown headings" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(source_resolver).to receive(:resolve).and_return([])
+
+      output = capture_output { described_class.start(["check", "--format", "markdown"]) }
+
+      expect(output).to include("## rails (7.0.8 → 7.1.3)")
+    end
+  end
+
+  describe "--output flag" do
+    it "writes output to a file" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return(nil)
+
+      require "tempfile"
+      tmpfile = Tempfile.new("changelog_output")
+      begin
+        output = capture_output { described_class.start(["check", "--output", tmpfile.path]) }
+
+        expect(output).to include("Output written to")
+        expect(File.read(tmpfile.path)).to include("rails")
+      ensure
+        tmpfile.close
+        tmpfile.unlink
+      end
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true
