@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON output (`--format json`) for piping to `jq` or CI tools
 - Markdown output (`--format markdown`) for PR descriptions
 - `--output` flag to write formatted output to a file
+- Interactive gem selection via `tty-prompt` (`--interactive` / `-i` flag)
+- `show` subcommand: `gem_changelog_diff show rails 7.0.0 7.1.0`
 
 ## [0.5.0] - 2026-06-18
 

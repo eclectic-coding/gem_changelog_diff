@@ -230,15 +230,23 @@ module GemChangelogDiff
 
   Formatter: singleton(Formatters::Text)
 
+  class Interactive
+    def initialize: (gems: Array[OutdatedGem]) -> void
+    def select: () -> Array[OutdatedGem]
+  end
+
   class CLI < Thor
     def self.exit_on_failure?: () -> bool
 
     def check: (*String gem_names) -> void
+    def show: (String gem_name, String from_version, String to_version) -> void
     def cache: (?String? subcommand) -> void
     def version: () -> void
 
     private
 
+    def output_results: (Array[OutdatedGem] gems) -> void
+    def build_single_report: (OutdatedGem gem) -> gem_report
     def with_spinner: [T] () { () -> T } -> T
     def color_enabled?: () -> bool
     def configure_token: () -> void

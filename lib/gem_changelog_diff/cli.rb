@@ -23,21 +23,29 @@ module GemChangelogDiff
     class_option :concurrency, type: :numeric, default: 4, desc: "Number of concurrent fetches"
     class_option :format, type: :string, default: "text", desc: "Output format (text, json, markdown)"
     class_option :output, type: :string, desc: "Write output to file instead of stdout"
+    class_option :interactive, type: :boolean, default: false, aliases: "-i",
+                               desc: "Interactively select gems to check"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
       configure_token
       gems = detect_gems
       gems = filter_gems(gems, gem_names)
+      return say("All gems are up to date!") if gems.empty?
 
-      if gems.empty?
-        say "All gems are up to date!"
-        return
-      end
+      gems = Interactive.new(gems: gems).select if options[:interactive]
+      return say("No gems selected.") if gems.empty?
 
-      reports = with_spinner { build_reports(gems) }
+      output_results(gems)
+    end
+
+    desc "show GEM FROM_VERSION TO_VERSION", "Show changelog between two versions of a gem"
+    def show(gem_name, from_version, to_version)
+      configure_token
+      gem = OutdatedGem.new(name: gem_name, current_version: from_version, newest_version: to_version)
+      report = build_single_report(gem)
       formatter = Formatters.build(format: options[:format], color: color_enabled?)
-      write_output(formatter.format(reports))
+      write_output(formatter.format([report]))
     end
 
     desc "cache SUBCOMMAND", "Manage the cache"
@@ -139,6 +147,22 @@ module GemChangelogDiff
       result = yield
       spinner&.stop("Done!")
       result
+    end
+
+    def output_results(gems)
+      reports = with_spinner { build_reports(gems) }
+      formatter = Formatters.build(format: options[:format], color: color_enabled?)
+      write_output(formatter.format(reports))
+    end
+
+    def build_single_report(gem)
+      cache = build_cache
+      rubygems_client = RubygemsClient.new(cache: cache)
+      source_resolver = SourceResolver.new(
+        github_client: GithubClient.new(cache: cache),
+        changelog_parser: ChangelogParser.new(cache: cache)
+      )
+      build_gem_report(gem, rubygems_client, source_resolver)
     end
 
     def write_output(text)
