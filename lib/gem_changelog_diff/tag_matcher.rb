@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module GemChangelogDiff
+  # Extracts version strings from various Git tag formats.
   class TagMatcher
     STANDARD_PATTERN = /\A(?:release-)?v?(\d+\..+)\z/
 
@@ -8,6 +9,9 @@ module GemChangelogDiff
       @gem_name = gem_name
     end
 
+    # Parses a version string from a tag name.
+    # @param tag [String, nil] the Git tag name
+    # @return [String, nil] extracted version, or nil if unparseable
     def extract_version(tag)
       return nil if tag.nil? || tag.strip.empty?
 

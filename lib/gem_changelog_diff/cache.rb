@@ -6,6 +6,7 @@ require "json"
 require "net/http"
 
 module GemChangelogDiff
+  # Disk-based HTTP response cache with ETag revalidation.
   class Cache
     DEFAULT_DIR = File.join(Dir.home, ".cache", "gem_changelog_diff")
     DEFAULT_TTL = 86_400
@@ -16,6 +17,10 @@ module GemChangelogDiff
       @enabled = enabled
     end
 
+    # Fetches a response, returning cached data when available.
+    # @param uri [URI::Generic] the request URI
+    # @param headers [Hash<String, String>] additional HTTP headers
+    # @return [Net::HTTPResponse, CachedResponse]
     def get(uri, headers: {})
       return fetch_from_network(uri, headers) unless @enabled
 
@@ -31,6 +36,8 @@ module GemChangelogDiff
       end
     end
 
+    # Deletes all cached data.
+    # @return [void]
     def clear
       FileUtils.rm_rf(@cache_dir)
     end
@@ -104,7 +111,10 @@ module GemChangelogDiff
     end
   end
 
+  # Lightweight stand-in for Net::HTTPResponse built from cached data.
   class CachedResponse
+    # @return [String] the response body
+    # @return [String] the HTTP status code
     attr_reader :body, :code
 
     def initialize(body, code)

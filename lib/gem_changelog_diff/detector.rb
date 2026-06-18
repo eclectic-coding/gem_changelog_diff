@@ -3,9 +3,13 @@
 require "open3"
 
 module GemChangelogDiff
+  # Detects outdated gems by parsing `bundle outdated --parseable` output.
   class Detector
     PARSEABLE_REGEX = /\A(\S+)\s+\(newest\s+([^,]+),\s+installed\s+([^,)]+)/
 
+    # Runs bundle outdated and returns the list of outdated gems.
+    # @return [Array<OutdatedGem>]
+    # @raise [Error] if bundle outdated fails
     def detect
       output = run_bundle_outdated
       parse(output)

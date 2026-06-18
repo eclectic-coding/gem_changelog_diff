@@ -3,11 +3,14 @@
 require "tty-prompt"
 
 module GemChangelogDiff
+  # Presents a multi-select prompt for choosing which gems to check.
   class Interactive
     def initialize(gems:)
       @gems = gems
     end
 
+    # Displays the selection prompt and returns chosen gems.
+    # @return [Array<OutdatedGem>]
     def select
       prompt = TTY::Prompt.new
       prompt.multi_select("Select gems to check:",

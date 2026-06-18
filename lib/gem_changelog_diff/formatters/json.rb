@@ -4,6 +4,7 @@ require "json"
 
 module GemChangelogDiff
   module Formatters
+    # JSON formatter for machine-readable output.
     class Json < Base
       def format(gem_reports)
         counts = summary_counts(gem_reports)

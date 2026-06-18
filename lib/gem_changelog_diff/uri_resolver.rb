@@ -4,6 +4,7 @@ require "net/http"
 require "uri"
 
 module GemChangelogDiff
+  # Resolves a gem's RubyGems metadata to a GitHub owner/repo slug.
   class UriResolver
     GITHUB_REGEX = %r{github\.com/([^/]+)/([^/]+)}
     NON_GITHUB_HOSTS = {
@@ -15,6 +16,10 @@ module GemChangelogDiff
     URI_FIELDS = %w[source_code_uri homepage_uri bug_tracker_uri].freeze
     MAX_REDIRECTS = 3
 
+    # Extracts a GitHub slug from gem metadata, following redirects.
+    # @param gem_data [Hash<String, Object>] RubyGems API response data
+    # @return [String, nil] "owner/repo" slug, or nil if not on GitHub
+    # @raise [RepoNotFoundError] if hosted on a non-GitHub platform
     def resolve(gem_data)
       uris = extract_uris(gem_data)
       return nil if uris.empty?

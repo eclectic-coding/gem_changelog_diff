@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/eclectic-coding/gem_changelog_diff"
   spec.metadata["changelog_uri"] = "https://github.com/eclectic-coding/gem_changelog_diff/blob/main/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "https://rubydoc.info/gems/gem_changelog_diff"
 
   spec.metadata["rubygems_mfa_required"] = "true"
 

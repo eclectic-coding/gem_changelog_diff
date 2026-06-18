@@ -4,6 +4,7 @@ require "net/http"
 require "json"
 
 module GemChangelogDiff
+  # Fetches release notes from the GitHub Releases API with pagination.
   class GithubClient
     RELEASES_URL = "https://api.github.com/repos/%<repo>s/releases"
     RATE_LIMIT_WARNING_THRESHOLD = 10
@@ -13,6 +14,11 @@ module GemChangelogDiff
       @cache = cache
     end
 
+    # Returns releases between two versions, sorted newest first.
+    # @param repo [String] GitHub "owner/repo" slug
+    # @param current_version [String] currently locked version (exclusive)
+    # @param newest_version [String] target version (inclusive)
+    # @return [Array<Hash>] release hashes with :tag_name, :name, :published_at, :body
     def releases_between(repo, current_version, newest_version)
       gem_name = repo.split("/").last
       @active_matcher = TagMatcher.new(gem_name: gem_name)

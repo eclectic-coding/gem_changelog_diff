@@ -2,6 +2,7 @@
 
 module GemChangelogDiff
   module Formatters
+    # Markdown formatter for PR descriptions and documentation.
     class Markdown < Base
       def format(gem_reports)
         sections = gem_reports.map { |report| format_gem(report) }
