@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe GemChangelogDiff::Formatter do
-  subject(:formatter) { described_class.new }
+  subject(:formatter) { described_class.new(color: false) }
 
   let(:gem_info) do
     GemChangelogDiff::OutdatedGem.new(name: "rails", current_version: "7.0.8", newest_version: "7.1.3")
@@ -43,12 +43,12 @@ RSpec.describe GemChangelogDiff::Formatter do
     end
 
     context "with no releases" do
-      it "shows no releases found message" do
+      it "shows no changelog entries found message" do
         reports = [{ gem: gem_info, releases: [] }]
 
         output = formatter.format(reports)
 
-        expect(output).to include("No GitHub releases found.")
+        expect(output).to include("No changelog entries found.")
       end
     end
 
@@ -91,6 +91,63 @@ RSpec.describe GemChangelogDiff::Formatter do
         expect(output).to include("== rails (7.0.8 → 7.1.3) ==")
         expect(output).to include("== sidekiq (7.1.0 → 7.2.0) ==")
       end
+    end
+  end
+
+  describe "summary line" do
+    it "includes gem counts" do
+      reports = [
+        { gem: gem_info, releases: [{ tag_name: "v7.1.3", name: "7.1.3", published_at: nil, body: "notes" }] },
+        { gem: gem_info, releases: [], error: "  Could not find GitHub repository." }
+      ]
+
+      output = formatter.format(reports)
+
+      expect(output).to include("2 gems outdated, 1 with changelogs found, 1 skipped")
+    end
+  end
+
+  describe "color support" do
+    it "applies ANSI codes when color is enabled" do
+      colored_formatter = described_class.new(color: true)
+      reports = [{
+        gem: gem_info,
+        releases: [{ tag_name: "v7.1.3", name: "7.1.3", published_at: nil, body: "notes" }]
+      }]
+
+      output = colored_formatter.format(reports)
+
+      expect(output).to include("\e[1m\e[36m")
+      expect(output).to include("\e[33m")
+      expect(output).to include("\e[0m")
+    end
+
+    it "does not apply ANSI codes when color is disabled" do
+      reports = [{
+        gem: gem_info,
+        releases: [{ tag_name: "v7.1.3", name: "7.1.3", published_at: nil, body: "notes" }]
+      }]
+
+      output = formatter.format(reports)
+
+      expect(output).not_to include("\e[")
+    end
+
+    it "respects NO_COLOR env var in default_color?" do
+      allow(TTY::Color).to receive(:color?).and_return(true)
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("NO_COLOR", nil).and_return("1")
+
+      no_color_formatter = described_class.new
+
+      reports = [{
+        gem: gem_info,
+        releases: [{ tag_name: "v7.1.3", name: "7.1.3", published_at: nil, body: "notes" }]
+      }]
+
+      output = no_color_formatter.format(reports)
+
+      expect(output).not_to include("\e[")
     end
   end
 end

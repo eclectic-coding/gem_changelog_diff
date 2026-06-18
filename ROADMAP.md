@@ -2,18 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.3.0 -- CHANGELOG.md Fallback & Colored Output
-
-Many gems do not use GitHub Releases. Fall back to parsing CHANGELOG.md from the repository.
-
-- Colorized terminal output via `tty-color` (gem names, versions, warnings); respect `$NO_COLOR` and `--no-color`
-- Summary line: "X gems outdated, Y with changelogs found, Z skipped"
-
-**New files:** `changelog_parser.rb`, `source_resolver.rb`
-**Dependencies:** `tty-color` (runtime)
-
----
-
 ## 0.4.0 -- Lockfile Parsing Fallback & Filtering
 
 Support environments where `bundle outdated` is unavailable. Let users narrow which gems to inspect.
