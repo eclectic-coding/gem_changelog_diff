@@ -103,6 +103,24 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--no-color flag" do
+    it "disables colored output" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+      source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+      allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+      allow(source_resolver).to receive(:resolve).and_return([])
+
+      output = capture_output { described_class.start(["check", "--no-color"]) }
+
+      expect(output).not_to include("\e[")
+    end
+  end
+
   describe "--quiet flag" do
     it "suppresses warning output to stderr" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])

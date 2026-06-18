@@ -13,6 +13,7 @@ module GemChangelogDiff
     class_option :token, type: :string, desc: "GitHub personal access token"
     class_option :verbose, type: :boolean, default: false, desc: "Show detailed output"
     class_option :quiet, type: :boolean, default: false, desc: "Suppress warnings"
+    class_option :no_color, type: :boolean, default: false, desc: "Disable colored output"
 
     desc "check", "Show changelog diffs for outdated gems"
     def check
@@ -25,7 +26,8 @@ module GemChangelogDiff
       end
 
       reports = build_reports(gems)
-      say Formatter.new.format(reports)
+      formatter = Formatter.new(color: color_enabled?)
+      say formatter.format(reports)
     end
 
     desc "version", "Print version"
@@ -60,6 +62,10 @@ module GemChangelogDiff
     rescue GemChangelogDiff::Error => e
       log_warning "  Skipping #{gem.name}: #{e.message}"
       { gem: gem, releases: [], error: "  #{e.message}" }
+    end
+
+    def color_enabled?
+      !options[:no_color]
     end
 
     def log(message)

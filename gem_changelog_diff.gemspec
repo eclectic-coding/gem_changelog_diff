@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "thor", "~> 1.0"
+  spec.add_dependency "tty-color", "~> 0.6"
 end

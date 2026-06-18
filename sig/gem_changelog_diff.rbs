@@ -114,12 +114,23 @@ module GemChangelogDiff
   }
 
   class Formatter
+    BOLD: String
+    CYAN: String
+    GREEN: String
+    YELLOW: String
+    RED: String
+    RESET: String
+
+    def initialize: (?color: bool) -> void
     def format: (Array[gem_report] gem_reports) -> String
 
     private
 
+    def default_color?: () -> bool
     def format_gem: (gem_report report) -> String
     def format_release: (release_hash release) -> String
+    def summary: (Array[gem_report] gem_reports) -> String
+    def colorize: (String text, *String codes) -> String
   end
 
   class CLI < Thor
@@ -130,6 +141,7 @@ module GemChangelogDiff
 
     private
 
+    def color_enabled?: () -> bool
     def configure_token: () -> void
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
