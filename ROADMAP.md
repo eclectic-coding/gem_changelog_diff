@@ -1,4 +1,5 @@
 # Roadmap
 
-Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
+## Current Status
 
+There are no future milestones planned at this time. If you find a bug or would like to request a feature, please [open an issue](https://github.com/eclectic-coding/gem_changelog_diff/issues). See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting pull requests.
