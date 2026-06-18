@@ -2,15 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.9.0 -- Pre-1.0 Stabilization
-
-Freeze the public API. Harden the test suite. Prepare documentation for stable release.
-
-- Defined exit codes: 0 (success), 1 (error), 2 (partial failure)
-- README overhaul with examples for every subcommand and flag
-
----
-
 ## 1.0.0 -- Stable Release
 
 Public API is frozen. Semantic versioning contract begins.

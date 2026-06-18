@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+CapturedResult = Struct.new(:output, :exit_status)
+
 RSpec.describe GemChangelogDiff::CLI do
   let(:rails_gem) do
     GemChangelogDiff::OutdatedGem.new(name: "rails", current_version: "7.0.8", newest_version: "7.1.3")
@@ -637,12 +639,133 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
-  def capture_output
+  def capture_output_with_status(&block)
     original_stdout = $stdout
     $stdout = StringIO.new
-    yield
-    $stdout.string
+    block.call
+    CapturedResult.new($stdout.string, nil)
+  rescue SystemExit => e
+    CapturedResult.new($stdout.string, e.status)
   ensure
     $stdout = original_stdout
+  end
+
+  def capture_output(&block)
+    capture_output_with_status(&block).output
+  end
+
+  describe "exit codes" do
+    describe "#check" do
+      context "when all reports succeed" do
+        it "exits with SUCCESS" do
+          detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+          rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+          source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+          allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+          allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+          allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+          allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+          allow(source_resolver).to receive(:resolve).and_return([{ tag_name: "v7.1.3", name: "7.1.3",
+                                                                    published_at: "2024-02-21", body: "Fixes" }])
+
+          result = capture_output_with_status { described_class.start(["check"]) }
+
+          expect(result.exit_status).to eq(GemChangelogDiff::ExitCode::SUCCESS)
+        end
+      end
+
+      context "when all reports fail" do
+        it "exits with ERROR" do
+          detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+          rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+          allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+          allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+          allow(rubygems_client).to receive(:repo_url).with("rails").and_return(nil)
+
+          result = capture_output_with_status { described_class.start(["check"]) }
+
+          expect(result.exit_status).to eq(GemChangelogDiff::ExitCode::ERROR)
+        end
+      end
+
+      context "when some reports fail" do
+        it "exits with PARTIAL_FAILURE" do
+          sidekiq_gem = GemChangelogDiff::OutdatedGem.new(
+            name: "sidekiq", current_version: "7.0.0", newest_version: "7.1.0"
+          )
+          detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem, sidekiq_gem])
+          rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+          source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+          allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+          allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+          allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+          allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+          allow(rubygems_client).to receive(:repo_url).with("sidekiq").and_return(nil)
+          allow(source_resolver).to receive(:resolve).and_return([{ tag_name: "v7.1.3", name: "7.1.3",
+                                                                    published_at: "2024-02-21", body: "Fixes" }])
+
+          result = capture_output_with_status { described_class.start(["check"]) }
+
+          expect(result.exit_status).to eq(GemChangelogDiff::ExitCode::PARTIAL_FAILURE)
+        end
+      end
+
+      context "when no gems are outdated" do
+        it "does not call exit" do
+          detector = instance_double(GemChangelogDiff::Detector, detect: [])
+          allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+          result = capture_output_with_status { described_class.start(["check"]) }
+
+          expect(result.exit_status).to be_nil
+        end
+      end
+
+      context "with --dry-run" do
+        it "does not call exit" do
+          detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+          allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+          result = capture_output_with_status { described_class.start(["check", "--dry-run"]) }
+
+          expect(result.exit_status).to be_nil
+        end
+      end
+    end
+
+    describe "#show" do
+      context "when report succeeds" do
+        it "exits with SUCCESS" do
+          rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+          source_resolver = instance_double(GemChangelogDiff::SourceResolver)
+
+          allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+          allow(GemChangelogDiff::SourceResolver).to receive(:new).and_return(source_resolver)
+          allow(rubygems_client).to receive(:repo_url).with("rails").and_return("rails/rails")
+          allow(source_resolver).to receive(:resolve).and_return([{ tag_name: "v7.1.3", name: "7.1.3",
+                                                                    published_at: "2024-02-21", body: "Fixes" }])
+
+          result = capture_output_with_status { described_class.start(["show", "rails", "7.0.8", "7.1.3"]) }
+
+          expect(result.exit_status).to eq(GemChangelogDiff::ExitCode::SUCCESS)
+        end
+      end
+
+      context "when report has an error" do
+        it "exits with ERROR" do
+          rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+          allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+          allow(rubygems_client).to receive(:repo_url).with("mygem").and_return(nil)
+
+          result = capture_output_with_status { described_class.start(["show", "mygem", "1.0.0", "2.0.0"]) }
+
+          expect(result.exit_status).to eq(GemChangelogDiff::ExitCode::ERROR)
+        end
+      end
+    end
   end
 end

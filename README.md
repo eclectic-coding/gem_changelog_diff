@@ -22,6 +22,8 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Caching](#caching)
   - [Dry Run](#dry-run)
   - [Timeouts](#timeouts)
+  - [Concurrency](#concurrency)
+  - [Exit Codes](#exit-codes)
 - [Configuration File](#configuration-file)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -169,6 +171,51 @@ gem_changelog_diff --timeout 30  # Per-request timeout in seconds (default: 10)
 ```
 
 The total operation timeout (default: 120s) limits how long concurrent fetching can run. Both values are configurable via the config file.
+
+### Concurrency
+
+```bash
+gem_changelog_diff --concurrency 8   # Fetch 8 gems in parallel (default: 4)
+gem_changelog_diff --concurrency 1   # Disable concurrent fetching
+```
+
+The concurrency setting controls how many gems are fetched simultaneously using threads. Lower values reduce load on the GitHub API; higher values speed up large projects.
+
+### Exit Codes
+
+The CLI uses defined exit codes for scripting and CI integration:
+
+| Code | Meaning |
+|------|---------|
+| 0 | All gems processed successfully |
+| 1 | Complete failure (all gems failed, or fatal error) |
+| 2 | Some gems succeeded, some failed |
+
+The `check` command sets the exit code based on how many gems produced errors:
+
+```bash
+gem_changelog_diff check
+echo $?  # 0 = all ok, 1 = all failed, 2 = some failed
+```
+
+The `show` command exits 0 on success or 1 if the changelog could not be retrieved:
+
+```bash
+gem_changelog_diff show rails 7.0.8 7.1.3
+echo $?  # 0 = success, 1 = error
+```
+
+#### CI Integration
+
+Use exit codes to control CI behavior:
+
+```bash
+# Fail CI only on complete failure
+gem_changelog_diff check || [ $? -eq 2 ]
+
+# Strict mode: fail on any error
+gem_changelog_diff check
+```
 
 ### Configuration File
 

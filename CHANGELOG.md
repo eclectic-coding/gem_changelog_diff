@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VCR integration tests with recorded cassettes for rails, nokogiri, puma, and edge cases
 - Integration formatter tests verifying text, JSON, and markdown output against real API data
 - Complete RBS type signatures for all private methods in `GithubClient`, `UriResolver`, and `CLI`
+- `ExitCode` module with `SUCCESS` (0), `ERROR` (1), and `PARTIAL_FAILURE` (2) constants
+- `check` exits with status based on report errors (0 = all ok, 1 = all failed, 2 = partial)
+- `show` exits 0 on success, 1 on error
+- README: exit codes section, concurrency flag docs, CI integration guide
 
 ## [0.8.0] - 2026-06-18
 
