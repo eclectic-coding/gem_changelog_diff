@@ -2,17 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.7.0 -- Configuration File & Polish
-
-Persistent preferences so users don't repeat flags every run.
-
-- `--dry-run` flag: show which gems would be checked without fetching
-- Rails credentials support: read token from `Rails.application.credentials.dig(:gem_changelog_diff, :github_token)` when running inside a Rails app
-
-**New files:** `config_loader.rb`
-
----
-
 ## 0.8.0 -- Robustness & Edge Cases
 
 Handle the long tail of real-world gem repository patterns.

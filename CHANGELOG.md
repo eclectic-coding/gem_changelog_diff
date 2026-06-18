@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supported config keys: `github_token`, `default_format`, `cache_ttl`, `concurrency`, `ignore_gems`, `no_color`
 - `init` subcommand: generate a commented config file template
 - Config file token used as fallback when `--token` and `GITHUB_TOKEN` are not set
+- `--dry-run` flag: show which gems would be checked without fetching changelogs
+- Dry-run output respects `--format` flag (text, JSON, markdown)
+- Rails credentials token support: reads from `Rails.application.credentials.dig(:gem_changelog_diff, :github_token)` when running inside a Rails app
+- Token priority: `--token` flag → `GITHUB_TOKEN` env → Rails credentials → config file
 
 ## [0.6.0] - 2026-06-18
 
