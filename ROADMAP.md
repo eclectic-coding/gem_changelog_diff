@@ -6,13 +6,8 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Freeze the public API. Harden the test suite. Prepare documentation for stable release.
 
-- Integration test suite with VCR-recorded HTTP fixtures against well-known gems
-- RBS type signatures in `sig/gem_changelog_diff.rbs`
 - Defined exit codes: 0 (success), 1 (error), 2 (partial failure)
-- Add `rubocop-rspec` for spec linting
 - README overhaul with examples for every subcommand and flag
-
-**Dependencies:** `vcr`, `rubocop-rspec` (development)
 
 ---
 

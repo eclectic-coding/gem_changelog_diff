@@ -3,17 +3,17 @@
 require "tmpdir"
 
 RSpec.describe GemChangelogDiff::Cache do
+  subject(:cache) { described_class.new(cache_dir: cache_dir, ttl: 3600) }
+
   let(:cache_dir) { Dir.mktmpdir("gem_changelog_diff_cache") }
   let(:uri) { URI("https://api.github.com/repos/rails/rails/releases?page=1&per_page=100") }
   let(:headers) { { "Accept" => "application/json" } }
   let(:response_body) { '[{"tag_name":"v7.1.3"}]' }
 
-  subject(:cache) { described_class.new(cache_dir: cache_dir, ttl: 3600) }
-
   after { FileUtils.rm_rf(cache_dir) }
 
   describe "#get" do
-    context "on a cache miss" do
+    context "when cache miss" do
       it "fetches from network and stores the response" do
         stub_request(:get, uri.to_s).to_return(status: 200, body: response_body, headers: { "ETag" => '"abc123"' })
 
@@ -24,7 +24,7 @@ RSpec.describe GemChangelogDiff::Cache do
       end
     end
 
-    context "on a fresh cache hit" do
+    context "when fresh cache hit" do
       it "returns cached response without network call" do
         stub_request(:get, uri.to_s).to_return(status: 200, body: response_body, headers: { "ETag" => '"abc123"' })
 
@@ -38,7 +38,7 @@ RSpec.describe GemChangelogDiff::Cache do
       end
     end
 
-    context "on a stale cache hit with ETag" do
+    context "when stale cache hit with ETag" do
       it "revalidates with If-None-Match and returns cached on 304" do
         stale_cache = described_class.new(cache_dir: cache_dir, ttl: 0)
         stub_request(:get, uri.to_s).to_return(status: 200, body: response_body, headers: { "ETag" => '"abc123"' })

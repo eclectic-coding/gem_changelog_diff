@@ -235,7 +235,7 @@ RSpec.describe GemChangelogDiff::CLI do
       allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
       allow(rubygems_client).to receive(:repo_url).and_return(nil)
 
-      output = capture_output { described_class.start(["check", "rails"]) }
+      output = capture_output { described_class.start(%w[check rails]) }
 
       expect(output).to include("rails")
       expect(output).not_to include("sidekiq")
@@ -305,7 +305,7 @@ RSpec.describe GemChangelogDiff::CLI do
       allow(GemChangelogDiff::Cache).to receive(:new).and_return(cache_instance)
       allow(cache_instance).to receive(:clear)
 
-      output = capture_output { described_class.start(["cache", "clear"]) }
+      output = capture_output { described_class.start(%w[cache clear]) }
 
       expect(output).to include("Cache cleared.")
       expect(cache_instance).to have_received(:clear)
@@ -574,6 +574,7 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  # rubocop:disable RSpec/VerifiedDoubles -- Rails is not available in test environment
   describe "Rails credentials token" do
     it "reads token from Rails credentials when available" do
       detector = instance_double(GemChangelogDiff::Detector, detect: [])
@@ -620,6 +621,7 @@ RSpec.describe GemChangelogDiff::CLI do
       expect(GemChangelogDiff.configuration.github_token).to be_nil
     end
   end
+  # rubocop:enable RSpec/VerifiedDoubles
 
   describe ".exit_on_failure?" do
     it "returns true" do

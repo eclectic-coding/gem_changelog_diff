@@ -27,7 +27,7 @@ All feature work lives on `feature/<version>-<scope>` branches (e.g. `feature/0.
 
 ## Code Style
 
-- RuboCop with `rubocop-rake` plugin; double quotes for strings
+- RuboCop with `rubocop-rake` and `rubocop-rspec` plugins; double quotes for strings
 - Target Ruby version: 3.3
 - `frozen_string_literal: true` on all Ruby files
 - `Style/Documentation` is disabled
@@ -37,6 +37,8 @@ All feature work lives on `feature/<version>-<scope>` branches (e.g. `feature/0.
 - RSpec with `--format documentation`
 - SimpleCov for coverage (HTML + JSON output); JSON uploaded to Codecov in CI
 - Coverage filters: `spec/` and `version.rb` excluded; tracks `lib/**/*.rb`
+- VCR integration tests in `spec/integration/` use recorded cassettes from `spec/cassettes/`
+- To re-record cassettes: `GITHUB_TOKEN=ghp_... bundle exec rspec spec/integration/`
 
 ## CI
 

@@ -8,7 +8,7 @@ RSpec.describe GemChangelogDiff::ConcurrentFetcher do
       fetcher = described_class.new(concurrency: 4)
       items = %w[a b c d]
 
-      results = fetcher.fetch_all(items) { |item| item.upcase }
+      results = fetcher.fetch_all(items, &:upcase)
 
       expect(results).to eq(%w[A B C D])
     end
@@ -35,12 +35,13 @@ RSpec.describe GemChangelogDiff::ConcurrentFetcher do
       fetcher = described_class.new(concurrency: 2)
       items = [1, 2]
 
-      expect {
+      expect do
         fetcher.fetch_all(items) do |item|
           raise "boom" if item == 2
+
           item
         end
-      }.to raise_error(RuntimeError, "boom")
+      end.to raise_error(RuntimeError, "boom")
     end
 
     it "limits thread count to item count" do
@@ -57,11 +58,11 @@ RSpec.describe GemChangelogDiff::ConcurrentFetcher do
       fetcher = described_class.new(concurrency: 2)
       items = [1, 2]
 
-      expect {
+      expect do
         fetcher.fetch_all(items) do |_item|
           sleep 2
         end
-      }.to raise_error(GemChangelogDiff::NetworkError, /Total timeout/)
+      end.to raise_error(GemChangelogDiff::NetworkError, /Total timeout/)
     end
   end
 end

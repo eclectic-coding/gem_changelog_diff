@@ -159,8 +159,8 @@ RSpec.describe GemChangelogDiff::GithubClient do
 
         client.releases_between("rails/rails", "7.0.8", "7.1.3")
 
-        expect(WebMock).to have_requested(:get, releases_url)
-          .with { |req| req.headers.keys.none? { |k| k.casecmp("authorization").zero? } }
+        expect(WebMock).to(have_requested(:get, releases_url)
+          .with { |req| req.headers.keys.none? { |k| k.casecmp("authorization").zero? } })
       end
     end
 
@@ -236,9 +236,9 @@ RSpec.describe GemChangelogDiff::GithubClient do
             "published_at" => "2024-02-01T00:00:00Z", "body" => "Page 2" }
         ].to_json
 
+        next_link = '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"'
         stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
-          .to_return(status: 200, body: page1_releases,
-                     headers: { "Link" => '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"' })
+          .to_return(status: 200, body: page1_releases, headers: { "Link" => next_link })
         stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=2&per_page=100")
           .to_return(status: 200, body: page2_releases)
 
@@ -255,9 +255,9 @@ RSpec.describe GemChangelogDiff::GithubClient do
             "published_at" => "2023-01-01T00:00:00Z", "body" => "Old" }
         ].to_json
 
+        next_link = '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"'
         stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
-          .to_return(status: 200, body: page1_releases,
-                     headers: { "Link" => '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"' })
+          .to_return(status: 200, body: page1_releases, headers: { "Link" => next_link })
 
         results = client.releases_between("owner/repo", "2.0.0", "3.0.0")
 

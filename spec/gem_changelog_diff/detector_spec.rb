@@ -16,9 +16,11 @@ RSpec.describe GemChangelogDiff::Detector do
         gems = detector.detect
 
         expect(gems).to eq([
-          GemChangelogDiff::OutdatedGem.new(name: "rails", current_version: "7.0.8", newest_version: "7.1.3"),
-          GemChangelogDiff::OutdatedGem.new(name: "sidekiq", current_version: "7.1.0", newest_version: "7.2.0")
-        ])
+                             GemChangelogDiff::OutdatedGem.new(name: "rails", current_version: "7.0.8",
+                                                               newest_version: "7.1.3"),
+                             GemChangelogDiff::OutdatedGem.new(name: "sidekiq", current_version: "7.1.0",
+                                                               newest_version: "7.2.0")
+                           ])
       end
     end
 

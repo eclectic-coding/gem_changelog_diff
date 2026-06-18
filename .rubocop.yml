@@ -1,5 +1,6 @@
 plugins:
   - rubocop-rake
+  - rubocop-rspec
 
 AllCops:
   SuggestExtensions: false
@@ -9,7 +10,6 @@ AllCops:
   Exclude:
     - "bin/*"
     - "README.md"
-    - "spec/**/*"
     - "vendor/**/*"
 
 Style/Documentation:
@@ -25,3 +25,23 @@ Metrics/ClassLength:
   Exclude:
     - "lib/gem_changelog_diff/cli.rb"
     - "lib/gem_changelog_diff/github_client.rb"
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/MultipleExpectations:
+  Max: 4
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 8
+
+RSpec/DescribeClass:
+  Exclude:
+    - "spec/integration/**/*"
