@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ETag conditional requests to avoid consuming rate limit on revalidation
 - `cache clear` subcommand
 - `--no-cache` and `--cache-ttl` flags
+- Concurrent fetching via thread pool (default 4, configurable via `--concurrency`)
+- Progress indicator via `tty-spinner` when running in a terminal
 
 ## [0.4.0] - 2026-06-18
 

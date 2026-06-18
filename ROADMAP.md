@@ -2,18 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.5.0 -- Caching & Performance
-
-Avoid redundant API calls. Make repeated runs fast on large dependency trees.
-
-- Concurrent fetching via Ruby threads (default concurrency: 4, configurable via `--concurrency`)
-- Progress indicator via `tty-spinner`
-
-**New files:** `cache.rb`, `concurrent_fetcher.rb`
-**Dependencies:** `tty-spinner` (runtime)
-
----
-
 ## 0.6.0 -- Interactive Mode & Output Formats
 
 Let users selectively browse changelogs. Support machine-readable output for CI and scripting.
