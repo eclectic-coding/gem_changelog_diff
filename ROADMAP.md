@@ -26,6 +26,7 @@ Persistent preferences so users don't repeat flags every run.
 - `init` subcommand: generate a commented config template
 - `version` subcommand
 - `--dry-run` flag: show which gems would be checked without fetching
+- Rails credentials support: read token from `Rails.application.credentials.dig(:gem_changelog_diff, :github_token)` when running inside a Rails app
 
 **New files:** `config_loader.rb`
 
