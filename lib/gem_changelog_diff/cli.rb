@@ -28,6 +28,7 @@ module GemChangelogDiff
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
+      load_config
       configure_token
       gems = detect_gems
       gems = filter_gems(gems, gem_names)
@@ -41,10 +42,11 @@ module GemChangelogDiff
 
     desc "show GEM FROM_VERSION TO_VERSION", "Show changelog between two versions of a gem"
     def show(gem_name, from_version, to_version)
+      load_config
       configure_token
       gem = OutdatedGem.new(name: gem_name, current_version: from_version, newest_version: to_version)
       report = build_single_report(gem)
-      formatter = Formatters.build(format: options[:format], color: color_enabled?)
+      formatter = Formatters.build(format: resolved_format, color: color_enabled?)
       write_output(formatter.format([report]))
     end
 
@@ -59,6 +61,18 @@ module GemChangelogDiff
       end
     end
 
+    desc "init", "Generate a config file template"
+    def init
+      path = ConfigLoader::PROJECT_CONFIG_NAME
+      if File.exist?(path)
+        say "#{path} already exists."
+        return
+      end
+
+      File.write(path, config_template)
+      say "Created #{path}"
+    end
+
     desc "version", "Print version"
     def version
       say "gem_changelog_diff #{VERSION}"
@@ -68,8 +82,14 @@ module GemChangelogDiff
 
     private
 
+    def load_config
+      config = ConfigLoader.new.load
+      GemChangelogDiff.configuration.apply(config)
+    end
+
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
+      token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
     end
 
@@ -109,7 +129,7 @@ module GemChangelogDiff
     end
 
     def ignore_list
-      @ignore_list ||= options[:ignore] || []
+      @ignore_list ||= (options[:ignore] || []) | GemChangelogDiff.configuration.ignore_gems
     end
 
     def build_reports(gems)
@@ -119,7 +139,7 @@ module GemChangelogDiff
         github_client: GithubClient.new(cache: cache),
         changelog_parser: ChangelogParser.new(cache: cache)
       )
-      fetcher = ConcurrentFetcher.new(concurrency: options[:concurrency])
+      fetcher = ConcurrentFetcher.new(concurrency: resolved_concurrency)
 
       fetcher.fetch_all(gems) { |gem| build_gem_report(gem, rubygems_client, source_resolver) }
     end
@@ -151,8 +171,16 @@ module GemChangelogDiff
 
     def output_results(gems)
       reports = with_spinner { build_reports(gems) }
-      formatter = Formatters.build(format: options[:format], color: color_enabled?)
+      formatter = Formatters.build(format: resolved_format, color: color_enabled?)
       write_output(formatter.format(reports))
+    end
+
+    def resolved_format
+      options[:format] || GemChangelogDiff.configuration.default_format
+    end
+
+    def resolved_concurrency
+      options[:concurrency] || GemChangelogDiff.configuration.concurrency
     end
 
     def build_single_report(gem)
@@ -175,7 +203,34 @@ module GemChangelogDiff
     end
 
     def color_enabled?
-      !options[:no_color]
+      !options[:no_color] && !GemChangelogDiff.configuration.no_color
+    end
+
+    def config_template
+      <<~YAML
+        # gem_changelog_diff configuration
+        # See: https://github.com/eclectic-coding/gem_changelog_diff
+
+        # GitHub personal access token (or use GITHUB_TOKEN env var)
+        # github_token: ghp_xxx
+
+        # Default output format: text, json, markdown
+        # default_format: text
+
+        # Cache TTL in seconds (default: 86400 = 24 hours)
+        # cache_ttl: 86400
+
+        # Number of concurrent fetches (default: 4)
+        # concurrency: 4
+
+        # Gems to always ignore
+        # ignore_gems:
+        #   - rake
+        #   - bundler
+
+        # Disable colored output
+        # no_color: false
+      YAML
     end
 
     def log(message)

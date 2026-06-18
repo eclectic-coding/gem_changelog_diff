@@ -26,8 +26,29 @@ module GemChangelogDiff
     attr_accessor github_token: String?
     attr_accessor cache_enabled: bool
     attr_accessor cache_ttl: Integer
+    attr_accessor default_format: String
+    attr_accessor concurrency: Integer
+    attr_accessor ignore_gems: Array[String]
+    attr_accessor no_color: bool
+
+    VALID_KEYS: Array[Symbol]
 
     def initialize: () -> void
+    def apply: (Hash[Symbol, untyped] hash) -> void
+  end
+
+  class ConfigLoader
+    USER_CONFIG_DIR: String
+    USER_CONFIG_PATH: String
+    PROJECT_CONFIG_NAME: String
+
+    def initialize: (?project_dir: String) -> void
+    def load: () -> Hash[Symbol, untyped]
+
+    private
+
+    def project_config_path: () -> String
+    def load_file: (String path) -> Hash[Symbol, untyped]
   end
 
   class Cache
@@ -241,12 +262,17 @@ module GemChangelogDiff
     def check: (*String gem_names) -> void
     def show: (String gem_name, String from_version, String to_version) -> void
     def cache: (?String? subcommand) -> void
+    def init: () -> void
     def version: () -> void
 
     private
 
+    def load_config: () -> void
     def output_results: (Array[OutdatedGem] gems) -> void
+    def resolved_format: () -> String
+    def resolved_concurrency: () -> Integer
     def build_single_report: (OutdatedGem gem) -> gem_report
+    def config_template: () -> String
     def with_spinner: [T] () { () -> T } -> T
     def color_enabled?: () -> bool
     def configure_token: () -> void

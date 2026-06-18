@@ -2,6 +2,7 @@
 
 require_relative "gem_changelog_diff/version"
 require_relative "gem_changelog_diff/configuration"
+require_relative "gem_changelog_diff/config_loader"
 
 module GemChangelogDiff
   class Error < StandardError; end

@@ -446,6 +446,51 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "#init" do
+    it "creates a config file" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do
+          capture_output { described_class.start(["init"]) }
+
+          expect(File.exist?(".gem_changelog_diff.yml")).to be true
+          expect(File.read(".gem_changelog_diff.yml")).to include("gem_changelog_diff configuration")
+        end
+      end
+    end
+
+    it "skips if config file already exists" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do
+          File.write(".gem_changelog_diff.yml", "existing: true")
+
+          output = capture_output { described_class.start(["init"]) }
+
+          expect(output).to include("already exists")
+          expect(File.read(".gem_changelog_diff.yml")).to eq("existing: true")
+        end
+      end
+    end
+  end
+
+  describe "config file loading" do
+    it "applies config file settings" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      rubygems_client = instance_double(GemChangelogDiff::RubygemsClient)
+
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_return(rubygems_client)
+      allow(rubygems_client).to receive(:repo_url).and_return(nil)
+
+      config_loader = instance_double(GemChangelogDiff::ConfigLoader)
+      allow(GemChangelogDiff::ConfigLoader).to receive(:new).and_return(config_loader)
+      allow(config_loader).to receive(:load).and_return({ ignore_gems: ["rails"] })
+
+      output = capture_output { described_class.start(["check"]) }
+
+      expect(output).to include("All gems are up to date!")
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true

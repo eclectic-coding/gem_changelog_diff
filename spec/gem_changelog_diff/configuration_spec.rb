@@ -36,6 +36,47 @@ RSpec.describe GemChangelogDiff::Configuration do
     end
   end
 
+  describe "new attribute defaults" do
+    it "defaults default_format to text" do
+      expect(described_class.new.default_format).to eq("text")
+    end
+
+    it "defaults concurrency to 4" do
+      expect(described_class.new.concurrency).to eq(4)
+    end
+
+    it "defaults ignore_gems to empty array" do
+      expect(described_class.new.ignore_gems).to eq([])
+    end
+
+    it "defaults no_color to false" do
+      expect(described_class.new.no_color).to be false
+    end
+  end
+
+  describe "#apply" do
+    it "sets values from a hash" do
+      config = described_class.new
+      config.apply(concurrency: 8, default_format: "json")
+
+      expect(config.concurrency).to eq(8)
+      expect(config.default_format).to eq("json")
+    end
+
+    it "skips nil values" do
+      config = described_class.new
+      config.apply(concurrency: nil)
+
+      expect(config.concurrency).to eq(4)
+    end
+
+    it "ignores unknown keys" do
+      config = described_class.new
+
+      expect { config.apply(unknown_key: "value") }.not_to raise_error
+    end
+  end
+
   describe "GemChangelogDiff.reset_configuration!" do
     it "resets to a fresh configuration" do
       GemChangelogDiff.configuration.github_token = "ghp_old"
