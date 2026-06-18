@@ -6,10 +6,8 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Support environments where `bundle outdated` is unavailable. Let users narrow which gems to inspect.
 
-- Parse `Gemfile.lock` directly via `Bundler::LockfileParser` and query RubyGems API for latest versions
-- Automatic fallback when `bundle outdated` fails
 - Positional args to inspect specific gems: `gem_changelog_diff check rails sidekiq`
-- `--group`, `--ignore`, `--lockfile`, `--strategy` flags
+- `--group` and `--ignore` flags
 
 **New files:** `lockfile_parser.rb`
 
