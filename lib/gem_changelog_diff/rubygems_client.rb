@@ -8,6 +8,10 @@ module GemChangelogDiff
     RUBYGEMS_API = "https://rubygems.org/api/v1/gems/%<name>s.json"
     GITHUB_REPO_REGEX = %r{github\.com/([^/]+)/([^/]+)}
 
+    def initialize(cache: nil)
+      @cache = cache
+    end
+
     def repo_url(gem_name)
       data = fetch_gem_data(gem_name)
       return nil unless data
@@ -24,7 +28,7 @@ module GemChangelogDiff
 
     def fetch_gem_data(gem_name)
       uri = URI(format(RUBYGEMS_API, name: gem_name))
-      response = Net::HTTP.get_response(uri)
+      response = @cache ? @cache.get(uri) : Net::HTTP.get_response(uri)
       return nil unless response.is_a?(Net::HTTPSuccess)
 
       JSON.parse(response.body)

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Disk cache at `~/.cache/gem_changelog_diff/` with configurable TTL (default 24h)
+- ETag conditional requests to avoid consuming rate limit on revalidation
+- `cache clear` subcommand
+- `--no-cache` and `--cache-ttl` flags
+
 ## [0.4.0] - 2026-06-18
 
 ### Added

@@ -9,6 +9,10 @@ module GemChangelogDiff
     TAG_VERSION_REGEX = /\Av?(\d+\..+)\z/
     RATE_LIMIT_WARNING_THRESHOLD = 10
 
+    def initialize(cache: nil)
+      @cache = cache
+    end
+
     def releases_between(repo, current_version, newest_version)
       releases = fetch_releases(repo)
       filter_releases(releases, current_version, newest_version)
@@ -29,17 +33,22 @@ module GemChangelogDiff
     end
 
     def execute_request(uri)
-      request = Net::HTTP::Get.new(uri)
-      request["Accept"] = "application/vnd.github.v3+json"
-      request["User-Agent"] = "gem_changelog_diff/#{VERSION}"
-      apply_auth(request)
+      headers = request_headers
+      return @cache.get(uri, headers: headers) if @cache
 
+      request = Net::HTTP::Get.new(uri)
+      headers.each { |k, v| request[k] = v }
       Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
     end
 
-    def apply_auth(request)
+    def request_headers
+      headers = {
+        "Accept" => "application/vnd.github.v3+json",
+        "User-Agent" => "gem_changelog_diff/#{VERSION}"
+      }
       token = GemChangelogDiff.configuration.github_token
-      request["Authorization"] = "token #{token}" if token
+      headers["Authorization"] = "token #{token}" if token
+      headers
     end
 
     def handle_response(response)

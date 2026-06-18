@@ -8,6 +8,7 @@ module GemChangelogDiff
 end
 
 require_relative "gem_changelog_diff/errors"
+require_relative "gem_changelog_diff/cache"
 require_relative "gem_changelog_diff/outdated_gem"
 require_relative "gem_changelog_diff/detector"
 require_relative "gem_changelog_diff/rubygems_client"

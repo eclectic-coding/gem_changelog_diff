@@ -24,6 +24,41 @@ module GemChangelogDiff
 
   class Configuration
     attr_accessor github_token: String?
+    attr_accessor cache_enabled: bool
+    attr_accessor cache_ttl: Integer
+
+    def initialize: () -> void
+  end
+
+  class Cache
+    DEFAULT_DIR: String
+    DEFAULT_TTL: Integer
+
+    def initialize: (?cache_dir: String, ?ttl: Integer, ?enabled: bool) -> void
+    def get: (URI::Generic uri, ?headers: Hash[String, String]) -> (Net::HTTPResponse | CachedResponse)
+    def clear: () -> void
+
+    private
+
+    def cache_key: (URI::Generic uri) -> String
+    def entry_path: (String key) -> String
+    def read_entry: (String key) -> Hash[String, untyped]?
+    def write_entry: (String key, body: String, code: String, etag: String?) -> void
+    def fresh?: (Hash[String, untyped] entry) -> bool
+    def revalidate: (URI::Generic uri, Hash[String, String] headers, Hash[String, untyped] entry, String key) -> (Net::HTTPResponse | CachedResponse)
+    def fetch_and_store: (URI::Generic uri, Hash[String, String] headers, String key) -> Net::HTTPResponse
+    def fetch_from_network: (URI::Generic uri, Hash[String, String] headers) -> Net::HTTPResponse
+    def store_response: (String key, Net::HTTPResponse response) -> void
+    def build_response: (Hash[String, untyped] entry) -> CachedResponse
+  end
+
+  class CachedResponse
+    attr_reader body: String
+    attr_reader code: String
+
+    def initialize: (String body, String code) -> void
+    def is_a?: (Class klass) -> bool
+    def []: (String _header) -> nil
   end
 
   class OutdatedGem
@@ -50,6 +85,7 @@ module GemChangelogDiff
     RUBYGEMS_API: String
     GITHUB_REPO_REGEX: Regexp
 
+    def initialize: (?cache: Cache?) -> void
     def repo_url: (String gem_name) -> String?
     def latest_version: (String gem_name) -> String?
 
@@ -81,13 +117,15 @@ module GemChangelogDiff
     FILENAMES: Array[String]
     VERSION_HEADING: Regexp
 
+    def initialize: (?cache: Cache?) -> void
     def entries_between: (String repo, String current_version, String newest_version) -> Array[release_hash]
 
     private
 
     def fetch_changelog: (String repo) -> String?
     def fetch_file: (String repo, String path) -> String?
-    def execute_request: (URI::Generic uri) -> Net::HTTPResponse
+    def execute_request: (URI::Generic uri) -> (Net::HTTPResponse | CachedResponse)
+    def request_headers: () -> Hash[String, String]
     def parse_entries: (String content, String current_version, String newest_version) -> Array[release_hash]
     def build_entry: (String version_str, String body, Gem::Version current, Gem::Version newest) -> release_hash?
     def split_sections: (String content) -> Array[[String, String]]
@@ -104,16 +142,18 @@ module GemChangelogDiff
   class GithubClient
     RELEASES_URL: String
     TAG_VERSION_REGEX: Regexp
+    RATE_LIMIT_WARNING_THRESHOLD: Integer
 
+    def initialize: (?cache: Cache?) -> void
     def releases_between: (String repo, String current_version, String newest_version) -> Array[release_hash]
 
     private
 
     def fetch_releases: (String repo) -> Array[Hash[String, untyped]]
-    def execute_request: (URI::Generic uri) -> Net::HTTPResponse
-    def apply_auth: (Net::HTTPRequest request) -> void
-    def handle_response: (Net::HTTPResponse response) -> Array[Hash[String, untyped]]
-    def check_rate_limit: (Net::HTTPResponse response) -> void
+    def execute_request: (URI::Generic uri) -> (Net::HTTPResponse | CachedResponse)
+    def request_headers: () -> Hash[String, String]
+    def handle_response: (Net::HTTPResponse | CachedResponse response) -> Array[Hash[String, untyped]]
+    def check_rate_limit: (Net::HTTPResponse | CachedResponse response) -> void
     def filter_releases: (Array[Hash[String, untyped]] releases, String current_version, String newest_version) -> Array[release_hash]
     def build_release: (Hash[String, untyped] release, Gem::Version current, Gem::Version newest) -> release_hash?
     def sort_releases: (Array[release_hash] releases) -> Array[release_hash]
@@ -149,13 +189,15 @@ module GemChangelogDiff
   class CLI < Thor
     def self.exit_on_failure?: () -> bool
 
-    def check: () -> void
+    def check: (*String gem_names) -> void
+    def cache: (?String? subcommand) -> void
     def version: () -> void
 
     private
 
     def color_enabled?: () -> bool
     def configure_token: () -> void
+    def build_cache: () -> Cache
     def detect_gems: () -> Array[OutdatedGem]
     def detect_with_fallback: () -> Array[OutdatedGem]
     def detect_via_lockfile: () -> Array[OutdatedGem]

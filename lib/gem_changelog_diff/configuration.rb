@@ -2,7 +2,12 @@
 
 module GemChangelogDiff
   class Configuration
-    attr_accessor :github_token
+    attr_accessor :github_token, :cache_enabled, :cache_ttl
+
+    def initialize
+      @cache_enabled = true
+      @cache_ttl = 86_400
+    end
   end
 
   def self.configuration

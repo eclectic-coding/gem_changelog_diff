@@ -6,11 +6,8 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Avoid redundant API calls. Make repeated runs fast on large dependency trees.
 
-- Disk cache at `~/.cache/gem_changelog_diff/` with configurable TTL (default 24h)
-- ETag conditional requests to avoid consuming rate limit on revalidation
 - Concurrent fetching via Ruby threads (default concurrency: 4, configurable via `--concurrency`)
 - Progress indicator via `tty-spinner`
-- `cache clear` subcommand, `--no-cache` and `--cache-ttl` flags
 
 **New files:** `cache.rb`, `concurrent_fetcher.rb`
 **Dependencies:** `tty-spinner` (runtime)
