@@ -16,6 +16,7 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Output Control](#output-control)
   - [Detection Strategy](#detection-strategy)
   - [Filtering](#filtering)
+  - [Caching](#caching)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -85,6 +86,16 @@ gem_changelog_diff --lockfile path/to/Gemfile.lock  # Custom lockfile path
 gem_changelog_diff check rails sidekiq  # Only check specific gems
 gem_changelog_diff --group development   # Filter by Bundler group
 gem_changelog_diff --ignore rails rake   # Exclude specific gems
+```
+
+### Caching
+
+API responses are cached to `~/.cache/gem_changelog_diff/` with a 24-hour TTL. Subsequent runs reuse cached data and use ETag conditional requests to avoid consuming rate limit.
+
+```bash
+gem_changelog_diff --no-cache             # Bypass the cache
+gem_changelog_diff --cache-ttl 3600       # Set TTL to 1 hour
+gem_changelog_diff cache clear            # Clear all cached data
 ```
 
 [Back to top](#gemchangelogdiff)
