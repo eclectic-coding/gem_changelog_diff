@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `rubocop-rspec` plugin for spec linting with targeted cop overrides
+- VCR integration tests with recorded cassettes for rails, nokogiri, puma, and edge cases
+- Integration formatter tests verifying text, JSON, and markdown output against real API data
+- Complete RBS type signatures for all private methods in `GithubClient`, `UriResolver`, and `CLI`
+
 ## [0.8.0] - 2026-06-18
 
 ### Added
