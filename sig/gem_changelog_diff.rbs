@@ -176,25 +176,59 @@ module GemChangelogDiff
     ?error: String
   }
 
-  class Formatter
-    BOLD: String
-    CYAN: String
-    GREEN: String
-    YELLOW: String
-    RED: String
-    RESET: String
+  module Formatters
+    def self.build: (format: String, ?color: bool) -> Base
 
-    def initialize: (?color: bool) -> void
-    def format: (Array[gem_report] gem_reports) -> String
+    class Base
+      def initialize: (?color: bool) -> void
+      def format: (Array[gem_report] gem_reports) -> String
 
-    private
+      private
 
-    def default_color?: () -> bool
-    def format_gem: (gem_report report) -> String
-    def format_release: (release_hash release) -> String
-    def summary: (Array[gem_report] gem_reports) -> String
-    def colorize: (String text, *String codes) -> String
+      def summary_counts: (Array[gem_report] gem_reports) -> { total: Integer, with_changelogs: Integer, skipped: Integer }
+    end
+
+    class Text < Base
+      BOLD: String
+      CYAN: String
+      GREEN: String
+      YELLOW: String
+      RED: String
+      RESET: String
+
+      def initialize: (?color: bool) -> void
+      def format: (Array[gem_report] gem_reports) -> String
+
+      private
+
+      def default_color?: () -> bool
+      def format_gem: (gem_report report) -> String
+      def format_release: (release_hash release) -> String
+      def summary: (Array[gem_report] gem_reports) -> String
+      def colorize: (String text, *String codes) -> String
+    end
+
+    class Json < Base
+      def format: (Array[gem_report] gem_reports) -> String
+
+      private
+
+      def format_gem: (gem_report report) -> Hash[Symbol, untyped]
+      def stringify_release: (release_hash release) -> Hash[Symbol, untyped]
+    end
+
+    class Markdown < Base
+      def format: (Array[gem_report] gem_reports) -> String
+
+      private
+
+      def format_gem: (gem_report report) -> String
+      def format_release: (release_hash release) -> String
+      def summary: (Array[gem_report] gem_reports) -> String
+    end
   end
+
+  Formatter: singleton(Formatters::Text)
 
   class CLI < Thor
     def self.exit_on_failure?: () -> bool
@@ -216,6 +250,7 @@ module GemChangelogDiff
     def ignore_list: () -> Array[String]
     def build_reports: (Array[OutdatedGem] gems) -> Array[gem_report]
     def build_gem_report: (OutdatedGem gem, RubygemsClient rubygems_client, SourceResolver source_resolver) -> gem_report
+    def write_output: (String text) -> void
     def log: (String message) -> void
     def log_warning: (String message) -> void
   end

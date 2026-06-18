@@ -21,6 +21,8 @@ module GemChangelogDiff
     class_option :no_cache, type: :boolean, default: false, desc: "Disable caching"
     class_option :cache_ttl, type: :numeric, desc: "Cache TTL in seconds"
     class_option :concurrency, type: :numeric, default: 4, desc: "Number of concurrent fetches"
+    class_option :format, type: :string, default: "text", desc: "Output format (text, json, markdown)"
+    class_option :output, type: :string, desc: "Write output to file instead of stdout"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
@@ -34,8 +36,8 @@ module GemChangelogDiff
       end
 
       reports = with_spinner { build_reports(gems) }
-      formatter = Formatter.new(color: color_enabled?)
-      say formatter.format(reports)
+      formatter = Formatters.build(format: options[:format], color: color_enabled?)
+      write_output(formatter.format(reports))
     end
 
     desc "cache SUBCOMMAND", "Manage the cache"
@@ -137,6 +139,15 @@ module GemChangelogDiff
       result = yield
       spinner&.stop("Done!")
       result
+    end
+
+    def write_output(text)
+      if options[:output]
+        File.write(options[:output], "#{text}\n")
+        say "Output written to #{options[:output]}" unless options[:quiet]
+      else
+        say text
+      end
     end
 
     def color_enabled?
