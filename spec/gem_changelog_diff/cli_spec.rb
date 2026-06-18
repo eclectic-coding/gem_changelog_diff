@@ -491,6 +491,93 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "--dry-run flag" do
+    it "lists gems without fetching changelogs" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      output = capture_output { described_class.start(["check", "--dry-run"]) }
+
+      expect(output).to include("rails (7.0.8 → 7.1.3)")
+    end
+
+    it "does not call RubygemsClient" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+      allow(GemChangelogDiff::RubygemsClient).to receive(:new).and_call_original
+
+      capture_output { described_class.start(["check", "--dry-run"]) }
+
+      expect(GemChangelogDiff::RubygemsClient).not_to have_received(:new)
+    end
+
+    it "outputs JSON with --format json" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      output = capture_output { described_class.start(["check", "--dry-run", "--format", "json"]) }
+
+      parsed = JSON.parse(output)
+      expect(parsed.first["name"]).to eq("rails")
+    end
+
+    it "outputs markdown with --format markdown" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [rails_gem])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      output = capture_output { described_class.start(["check", "--dry-run", "--format", "markdown"]) }
+
+      expect(output).to include("- **rails** (7.0.8 → 7.1.3)")
+    end
+  end
+
+  describe "Rails credentials token" do
+    it "reads token from Rails credentials when available" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      credentials = double("credentials")
+      allow(credentials).to receive(:dig).with(:gem_changelog_diff, :github_token).and_return("ghp_rails_token")
+
+      application = double("application", credentials: credentials)
+      allow(application).to receive(:respond_to?).with(:credentials).and_return(true)
+
+      rails_module = double("Rails", application: application)
+      stub_const("Rails", rails_module)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to eq("ghp_rails_token")
+    end
+
+    it "returns nil gracefully when not in Rails" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to be_nil
+    end
+
+    it "returns nil when Rails credentials raises an error" do
+      detector = instance_double(GemChangelogDiff::Detector, detect: [])
+      allow(GemChangelogDiff::Detector).to receive(:new).and_return(detector)
+
+      credentials = double("credentials")
+      allow(credentials).to receive(:dig).and_raise(StandardError, "credentials error")
+
+      application = double("application", credentials: credentials)
+      allow(application).to receive(:respond_to?).with(:credentials).and_return(true)
+
+      rails_module = double("Rails", application: application)
+      stub_const("Rails", rails_module)
+
+      capture_output { described_class.start(["check"]) }
+
+      expect(GemChangelogDiff.configuration.github_token).to be_nil
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true
