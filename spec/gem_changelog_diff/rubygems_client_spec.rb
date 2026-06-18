@@ -94,4 +94,22 @@ RSpec.describe GemChangelogDiff::RubygemsClient do
       end
     end
   end
+
+  describe "#latest_version" do
+    it "returns the latest version string" do
+      stub_request(:get, "https://rubygems.org/api/v1/gems/rails.json")
+        .to_return(status: 200, body: { "version" => "7.1.3" }.to_json)
+
+      expect(client.latest_version("rails")).to eq("7.1.3")
+    end
+
+    context "when the gem is not found" do
+      it "returns nil" do
+        stub_request(:get, "https://rubygems.org/api/v1/gems/nonexistent.json")
+          .to_return(status: 404, body: "Not Found")
+
+        expect(client.latest_version("nonexistent")).to be_nil
+      end
+    end
+  end
 end

@@ -68,6 +68,15 @@ gem_changelog_diff --no-color  # Disable colored output
 
 The tool also respects the `$NO_COLOR` environment variable.
 
+### Detection Strategy
+
+```bash
+gem_changelog_diff --strategy lockfile   # Parse Gemfile.lock directly
+gem_changelog_diff --strategy outdated   # Use bundle outdated only
+gem_changelog_diff --strategy auto       # Try bundle outdated, fallback to lockfile (default)
+gem_changelog_diff --lockfile path/to/Gemfile.lock  # Custom lockfile path
+```
+
 [Back to top](#gemchangelogdiff)
 
 ## Development
