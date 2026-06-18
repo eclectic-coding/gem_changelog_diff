@@ -11,6 +11,7 @@ Handle the long tail of real-world gem repository patterns.
 - Proper version comparison via `Gem::Version` (handles pre-release: `1.0.0.rc1`, `1.0.0.beta2`)
 - GitHub API pagination for gems with 100+ releases
 - Per-request timeout (10s default), total timeout (120s default), configurable via `--timeout`
+- Interactive mode UX: add help hint to multi-select prompt (e.g., "Space to select, Enter to confirm")
 
 **New files:** `tag_matcher.rb`, `uri_resolver.rb`
 
