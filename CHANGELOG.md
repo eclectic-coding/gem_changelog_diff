@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-18
+
 ### Added
 
 - YARD documentation on all public classes and methods
@@ -141,7 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plain text formatter for changelog output
 - Full end-to-end pipeline: detect → lookup → fetch → format
 
-[Unreleased]: https://github.com/eclectic-coding/gem_changelog_diff/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/eclectic-coding/gem_changelog_diff/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v1.0.0
 [0.9.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.9.0
 [0.8.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.8.0
 [0.7.0]: https://github.com/eclectic-coding/gem_changelog_diff/releases/tag/v0.7.0
