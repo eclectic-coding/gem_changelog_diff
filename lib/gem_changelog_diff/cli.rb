@@ -25,6 +25,7 @@ module GemChangelogDiff
     class_option :output, type: :string, desc: "Write output to file instead of stdout"
     class_option :interactive, type: :boolean, default: false, aliases: "-i",
                                desc: "Interactively select gems to check"
+    class_option :dry_run, type: :boolean, default: false, desc: "Show which gems would be checked"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
@@ -36,6 +37,7 @@ module GemChangelogDiff
 
       gems = Interactive.new(gems: gems).select if options[:interactive]
       return say("No gems selected.") if gems.empty?
+      return dry_run_output(gems) if options[:dry_run]
 
       output_results(gems)
     end
@@ -89,8 +91,17 @@ module GemChangelogDiff
 
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
+      token ||= rails_credentials_token
       token ||= GemChangelogDiff.configuration.github_token
       GemChangelogDiff.configuration.github_token = token if token
+    end
+
+    def rails_credentials_token
+      return unless defined?(Rails) && Rails.application.respond_to?(:credentials)
+
+      Rails.application.credentials.dig(:gem_changelog_diff, :github_token)
+    rescue StandardError
+      nil
     end
 
     def build_cache
@@ -167,6 +178,22 @@ module GemChangelogDiff
       result = yield
       spinner&.stop("Done!")
       result
+    end
+
+    def dry_run_output(gems)
+      write_output(format_dry_run(gems))
+    end
+
+    def format_dry_run(gems)
+      case resolved_format
+      when "json"
+        require "json"
+        JSON.pretty_generate(gems.map(&:to_h))
+      when "markdown"
+        gems.map { |g| "- **#{g.name}** (#{g.current_version} → #{g.newest_version})" }.join("\n")
+      else
+        gems.map { |g| "#{g.name} (#{g.current_version} → #{g.newest_version})" }.join("\n")
+      end
     end
 
     def output_results(gems)

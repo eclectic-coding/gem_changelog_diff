@@ -20,6 +20,7 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Interactive Mode](#interactive-mode)
   - [Show Subcommand](#show-subcommand)
   - [Caching](#caching)
+  - [Dry Run](#dry-run)
   - [Configuration File](#configuration-file)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -63,6 +64,23 @@ gem_changelog_diff --token ghp_your_token
 # or
 export GITHUB_TOKEN=ghp_your_token
 gem_changelog_diff
+```
+
+Token resolution priority: `--token` flag → `GITHUB_TOKEN` env → Rails credentials → config file.
+
+#### Rails Credentials
+
+When running inside a Rails app, the token is automatically read from Rails credentials:
+
+```ruby
+Rails.application.credentials.dig(:gem_changelog_diff, :github_token)
+```
+
+Set it via `rails credentials:edit`:
+
+```yaml
+gem_changelog_diff:
+  github_token: ghp_your_token
 ```
 
 ### Output Formats
@@ -127,6 +145,16 @@ API responses are cached to `~/.cache/gem_changelog_diff/` with a 24-hour TTL. S
 gem_changelog_diff --no-cache             # Bypass the cache
 gem_changelog_diff --cache-ttl 3600       # Set TTL to 1 hour
 gem_changelog_diff cache clear            # Clear all cached data
+```
+
+### Dry Run
+
+Preview which gems would be checked without fetching changelogs:
+
+```bash
+gem_changelog_diff --dry-run                     # List gems in text format
+gem_changelog_diff --dry-run --format json       # JSON array of gem objects
+gem_changelog_diff --dry-run --format markdown   # Markdown bullet list
 ```
 
 ### Configuration File
