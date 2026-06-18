@@ -26,7 +26,8 @@ RSpec.describe GemChangelogDiff::Interactive do
       interactive = described_class.new(gems: [rails_gem, sidekiq_gem])
       interactive.select
 
-      expect(prompt).to have_received(:multi_select).with("Select gems to check:", per_page: 15)
+      expect(prompt).to have_received(:multi_select)
+        .with("Select gems to check:", per_page: 15, help: "(Space to select, Enter to confirm)")
     end
 
     it "builds choice labels with name and versions" do

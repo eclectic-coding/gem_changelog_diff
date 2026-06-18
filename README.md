@@ -21,7 +21,8 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Show Subcommand](#show-subcommand)
   - [Caching](#caching)
   - [Dry Run](#dry-run)
-  - [Configuration File](#configuration-file)
+  - [Timeouts](#timeouts)
+- [Configuration File](#configuration-file)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -161,6 +162,14 @@ gem_changelog_diff --dry-run --format json       # JSON array of gem objects
 gem_changelog_diff --dry-run --format markdown   # Markdown bullet list
 ```
 
+### Timeouts
+
+```bash
+gem_changelog_diff --timeout 30  # Per-request timeout in seconds (default: 10)
+```
+
+The total operation timeout (default: 120s) limits how long concurrent fetching can run. Both values are configurable via the config file.
+
 ### Configuration File
 
 Generate a config file template:
@@ -185,6 +194,8 @@ ignore_gems:
   - rake
   - bundler
 no_color: false
+request_timeout: 10        # per-request timeout in seconds
+total_timeout: 120         # total operation timeout in seconds
 ```
 
 CLI flags always take priority over config file values.

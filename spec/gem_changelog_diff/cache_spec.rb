@@ -4,7 +4,7 @@ require "tmpdir"
 
 RSpec.describe GemChangelogDiff::Cache do
   let(:cache_dir) { Dir.mktmpdir("gem_changelog_diff_cache") }
-  let(:uri) { URI("https://api.github.com/repos/rails/rails/releases?per_page=30") }
+  let(:uri) { URI("https://api.github.com/repos/rails/rails/releases?page=1&per_page=100") }
   let(:headers) { { "Accept" => "application/json" } }
   let(:response_body) { '[{"tag_name":"v7.1.3"}]' }
 

@@ -28,13 +28,23 @@ module GemChangelogDiff
 
     def fetch_gem_data(gem_name)
       uri = URI(format(RUBYGEMS_API, name: gem_name))
-      response = @cache ? @cache.get(uri) : Net::HTTP.get_response(uri)
+      response = @cache ? @cache.get(uri) : fetch_from_api(uri)
       return nil unless response.is_a?(Net::HTTPSuccess)
 
       JSON.parse(response.body)
     rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
-           Net::OpenTimeout, Net::ReadTimeout, JSON::ParserError => e
+           Errno::ETIMEDOUT, Errno::ECONNRESET,
+           Net::OpenTimeout, Net::ReadTimeout,
+           OpenSSL::SSL::SSLError, JSON::ParserError => e
       raise NetworkError, "RubyGems API request failed: #{e.message}"
+    end
+
+    def fetch_from_api(uri)
+      timeout = GemChangelogDiff.configuration.request_timeout
+      Net::HTTP.start(uri.hostname, uri.port,
+                      use_ssl: true, open_timeout: timeout, read_timeout: timeout) do |http|
+        http.request(Net::HTTP::Get.new(uri))
+      end
     end
   end
 end

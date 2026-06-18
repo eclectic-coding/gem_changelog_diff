@@ -5,7 +5,7 @@ RSpec.describe GemChangelogDiff::GithubClient do
 
   after { GemChangelogDiff.reset_configuration! }
 
-  let(:releases_url) { "https://api.github.com/repos/rails/rails/releases?per_page=30" }
+  let(:releases_url) { "https://api.github.com/repos/rails/rails/releases?page=1&per_page=100" }
 
   let(:releases_json) do
     [
@@ -66,13 +66,45 @@ RSpec.describe GemChangelogDiff::GithubClient do
           { "tag_name" => "2.0.0", "name" => "2.0.0", "published_at" => "2024-01-01T00:00:00Z",
             "body" => "New version" }
         ].to_json
-        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?per_page=30")
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
           .to_return(status: 200, body: releases)
 
         results = client.releases_between("owner/repo", "1.0.0", "2.0.0")
 
         expect(results.size).to eq(1)
         expect(results.first[:tag_name]).to eq("2.0.0")
+      end
+    end
+
+    context "with gem-prefixed tags" do
+      it "handles gem_name-version format" do
+        releases = [
+          { "tag_name" => "nokogiri-1.16.0", "name" => "1.16.0",
+            "published_at" => "2024-01-01T00:00:00Z", "body" => "Update" }
+        ].to_json
+        stub_request(:get, "https://api.github.com/repos/sparklemotion/nokogiri/releases?page=1&per_page=100")
+          .to_return(status: 200, body: releases)
+
+        results = client.releases_between("sparklemotion/nokogiri", "1.15.0", "1.16.0")
+
+        expect(results.size).to eq(1)
+        expect(results.first[:tag_name]).to eq("nokogiri-1.16.0")
+      end
+    end
+
+    context "with release-prefixed tags" do
+      it "handles release-version format" do
+        releases = [
+          { "tag_name" => "release-2.0.0", "name" => "2.0.0",
+            "published_at" => "2024-01-01T00:00:00Z", "body" => "Major" }
+        ].to_json
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
+          .to_return(status: 200, body: releases)
+
+        results = client.releases_between("owner/repo", "1.0.0", "2.0.0")
+
+        expect(results.size).to eq(1)
+        expect(results.first[:tag_name]).to eq("release-2.0.0")
       end
     end
 
@@ -89,6 +121,17 @@ RSpec.describe GemChangelogDiff::GithubClient do
     context "when API returns 404" do
       it "returns an empty array" do
         stub_request(:get, releases_url).to_return(status: 404, body: "Not Found")
+
+        results = client.releases_between("rails/rails", "7.0.8", "7.1.3")
+
+        expect(results).to eq([])
+      end
+    end
+
+    context "when API returns 301" do
+      it "returns an empty array" do
+        stub_request(:get, releases_url).to_return(status: 301, body: "",
+                                                   headers: { "Location" => "https://example.com" })
 
         results = client.releases_between("rails/rails", "7.0.8", "7.1.3")
 
@@ -153,11 +196,111 @@ RSpec.describe GemChangelogDiff::GithubClient do
     end
 
     context "when a network error occurs" do
-      it "raises NetworkError" do
+      it "raises NetworkError for SocketError" do
         stub_request(:get, releases_url).to_raise(SocketError.new("getaddrinfo: Name or service not known"))
 
         expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
           .to raise_error(GemChangelogDiff::NetworkError, /Name or service not known/)
+      end
+
+      it "raises NetworkError for Errno::ETIMEDOUT" do
+        stub_request(:get, releases_url).to_raise(Errno::ETIMEDOUT)
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::NetworkError)
+      end
+
+      it "raises NetworkError for Errno::ECONNRESET" do
+        stub_request(:get, releases_url).to_raise(Errno::ECONNRESET)
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::NetworkError)
+      end
+
+      it "raises NetworkError for OpenSSL::SSL::SSLError" do
+        stub_request(:get, releases_url).to_raise(OpenSSL::SSL::SSLError.new("SSL_connect error"))
+
+        expect { client.releases_between("rails/rails", "7.0.8", "7.1.3") }
+          .to raise_error(GemChangelogDiff::NetworkError)
+      end
+    end
+
+    context "with pagination" do
+      it "fetches multiple pages when Link header has next" do
+        page1_releases = [
+          { "tag_name" => "v3.0.0", "name" => "3.0.0",
+            "published_at" => "2024-03-01T00:00:00Z", "body" => "Page 1" }
+        ].to_json
+        page2_releases = [
+          { "tag_name" => "v2.0.0", "name" => "2.0.0",
+            "published_at" => "2024-02-01T00:00:00Z", "body" => "Page 2" }
+        ].to_json
+
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
+          .to_return(status: 200, body: page1_releases,
+                     headers: { "Link" => '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"' })
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=2&per_page=100")
+          .to_return(status: 200, body: page2_releases)
+
+        results = client.releases_between("owner/repo", "1.0.0", "3.0.0")
+
+        expect(results.map { |r| r[:tag_name] }).to eq(%w[v3.0.0 v2.0.0])
+      end
+
+      it "stops paginating when releases older than current version found" do
+        page1_releases = [
+          { "tag_name" => "v3.0.0", "name" => "3.0.0",
+            "published_at" => "2024-03-01T00:00:00Z", "body" => "New" },
+          { "tag_name" => "v1.0.0", "name" => "1.0.0",
+            "published_at" => "2023-01-01T00:00:00Z", "body" => "Old" }
+        ].to_json
+
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
+          .to_return(status: 200, body: page1_releases,
+                     headers: { "Link" => '<https://api.github.com/repos/owner/repo/releases?page=2&per_page=100>; rel="next"' })
+
+        results = client.releases_between("owner/repo", "2.0.0", "3.0.0")
+
+        expect(results.map { |r| r[:tag_name] }).to eq(%w[v3.0.0])
+        expect(WebMock).not_to have_requested(:get,
+                                              "https://api.github.com/repos/owner/repo/releases?page=2&per_page=100")
+      end
+
+      it "stops when page returns empty releases" do
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
+          .to_return(status: 200, body: "[]")
+
+        results = client.releases_between("owner/repo", "1.0.0", "2.0.0")
+
+        expect(results).to eq([])
+      end
+    end
+
+    context "with invalid version arguments" do
+      it "returns empty array when current_version is malformed" do
+        stub_request(:get, releases_url).to_return(status: 200, body: releases_json)
+
+        results = client.releases_between("rails/rails", "not a version", "7.1.3")
+
+        expect(results).to eq([])
+      end
+    end
+
+    context "with malformed version tags" do
+      it "skips releases with invalid version strings" do
+        releases = [
+          { "tag_name" => "latest", "name" => "Latest", "published_at" => "2024-01-01T00:00:00Z",
+            "body" => "Not a version" },
+          { "tag_name" => "v2.0.0", "name" => "2.0.0", "published_at" => "2024-01-01T00:00:00Z",
+            "body" => "Valid" }
+        ].to_json
+        stub_request(:get, "https://api.github.com/repos/owner/repo/releases?page=1&per_page=100")
+          .to_return(status: 200, body: releases)
+
+        results = client.releases_between("owner/repo", "1.0.0", "2.0.0")
+
+        expect(results.size).to eq(1)
+        expect(results.first[:tag_name]).to eq("v2.0.0")
       end
     end
 

@@ -30,6 +30,8 @@ module GemChangelogDiff
     attr_accessor concurrency: Integer
     attr_accessor ignore_gems: Array[String]
     attr_accessor no_color: bool
+    attr_accessor request_timeout: Integer
+    attr_accessor total_timeout: Integer
 
     VALID_KEYS: Array[Symbol]
 
@@ -120,6 +122,19 @@ module GemChangelogDiff
     def request_headers: () -> Hash[String, String]
   end
 
+  class TagMatcher
+    STANDARD_PATTERN: Regexp
+
+    def initialize: (?gem_name: String?) -> void
+    def extract_version: (String? tag) -> String?
+
+    private
+
+    def try_gem_prefixed: (String tag) -> String?
+    def try_standard_pattern: (String tag) -> String?
+    def validate_version: (String version_str) -> String?
+  end
+
   class RubygemsClient
     RUBYGEMS_API: String
 
@@ -130,6 +145,7 @@ module GemChangelogDiff
     private
 
     def fetch_gem_data: (String gem_name) -> Hash[String, untyped]?
+    def fetch_from_api: (URI::Generic uri) -> Net::HTTPResponse
   end
 
   class LockfileParser
@@ -169,6 +185,7 @@ module GemChangelogDiff
     def process_line: (String line, Array[[String, String]] sections, String? current_version, Array[String] current_body) -> [String?, Array[String]]
     def flush_section: (Array[[String, String]] sections, String? version, Array[String] body) -> void
     def clean_version: (String raw) -> String
+    def safe_gem_version: (String version_str) -> Gem::Version?
   end
 
   class SourceResolver
@@ -178,15 +195,18 @@ module GemChangelogDiff
 
   class GithubClient
     RELEASES_URL: String
-    TAG_VERSION_REGEX: Regexp
     RATE_LIMIT_WARNING_THRESHOLD: Integer
+    MAX_PAGES: Integer
 
     def initialize: (?cache: Cache?) -> void
     def releases_between: (String repo, String current_version, String newest_version) -> Array[release_hash]
 
     private
 
-    def fetch_releases: (String repo) -> Array[Hash[String, untyped]]
+    def fetch_releases: (String repo, ?String? current_version) -> Array[Hash[String, untyped]]
+    def build_releases_uri: (String repo, Integer page) -> URI::Generic
+    def next_page?: ((Net::HTTPResponse | CachedResponse) response) -> bool
+    def oldest_before_current?: (Array[Hash[String, untyped]] releases, Gem::Version current) -> bool
     def execute_request: (URI::Generic uri) -> (Net::HTTPResponse | CachedResponse)
     def request_headers: () -> Hash[String, String]
     def handle_response: (Net::HTTPResponse | CachedResponse response) -> Array[Hash[String, untyped]]
@@ -194,7 +214,7 @@ module GemChangelogDiff
     def filter_releases: (Array[Hash[String, untyped]] releases, String current_version, String newest_version) -> Array[release_hash]
     def build_release: (Hash[String, untyped] release, Gem::Version current, Gem::Version newest) -> release_hash?
     def sort_releases: (Array[release_hash] releases) -> Array[release_hash]
-    def extract_version: (String? tag) -> String?
+    def safe_gem_version: (String version_str) -> Gem::Version?
   end
 
   class ConcurrentFetcher
@@ -203,6 +223,7 @@ module GemChangelogDiff
 
     private
 
+    def run_workers: [T, U] (Array[T], &) -> Array[U]
     def spawn_workers: (Queue[untyped], Array[untyped], &) -> Array[Thread]
     def process_queue: (Queue[untyped], Array[untyped], &) -> void
   end
@@ -286,6 +307,7 @@ module GemChangelogDiff
     def load_config: () -> void
     def dry_run_output: (Array[OutdatedGem] gems) -> void
     def format_dry_run: (Array[OutdatedGem] gems) -> String
+    def configure_timeout: () -> void
     def rails_credentials_token: () -> String?
     def output_results: (Array[OutdatedGem] gems) -> void
     def resolved_format: () -> String

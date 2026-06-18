@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe GemChangelogDiff::ConcurrentFetcher do
+  after { GemChangelogDiff.reset_configuration! }
+
   describe "#fetch_all" do
     it "returns results in order" do
       fetcher = described_class.new(concurrency: 4)
@@ -48,6 +50,18 @@ RSpec.describe GemChangelogDiff::ConcurrentFetcher do
       results = fetcher.fetch_all(items) { |item| item }
 
       expect(results).to eq([1, 2])
+    end
+
+    it "raises NetworkError when total timeout is exceeded" do
+      GemChangelogDiff.configuration.total_timeout = 1
+      fetcher = described_class.new(concurrency: 2)
+      items = [1, 2]
+
+      expect {
+        fetcher.fetch_all(items) do |_item|
+          sleep 2
+        end
+      }.to raise_error(GemChangelogDiff::NetworkError, /Total timeout/)
     end
   end
 end

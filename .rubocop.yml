@@ -24,3 +24,4 @@ Style/StringLiteralsInInterpolation:
 Metrics/ClassLength:
   Exclude:
     - "lib/gem_changelog_diff/cli.rb"
+    - "lib/gem_changelog_diff/github_client.rb"

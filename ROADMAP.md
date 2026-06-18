@@ -2,20 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.8.0 -- Robustness & Edge Cases
-
-Handle the long tail of real-world gem repository patterns.
-
-- Tag format normalization: `v1.2.3`, `1.2.3`, `gem_name-1.2.3`, `release-1.2.3`
-- Proper version comparison via `Gem::Version` (handles pre-release: `1.0.0.rc1`, `1.0.0.beta2`)
-- GitHub API pagination for gems with 100+ releases
-- Per-request timeout (10s default), total timeout (120s default), configurable via `--timeout`
-- Interactive mode UX: add help hint to multi-select prompt (e.g., "Space to select, Enter to confirm")
-
-**New files:** `tag_matcher.rb`, `uri_resolver.rb`
-
----
-
 ## 0.9.0 -- Pre-1.0 Stabilization
 
 Freeze the public API. Harden the test suite. Prepare documentation for stable release.

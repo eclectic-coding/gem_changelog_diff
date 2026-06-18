@@ -123,6 +123,63 @@ RSpec.describe GemChangelogDiff::ChangelogParser do
       end
     end
 
+    context "with malformed version in heading" do
+      it "skips entries with invalid versions" do
+        content = <<~CHANGELOG
+          # Changelog
+
+          ## [2.0.0] - 2024-03-01
+
+          - New stuff
+
+          ## [not-a-version]
+
+          - Bad entry
+
+          ## [1.0.0] - 2023-06-01
+
+          - Old stuff
+        CHANGELOG
+
+        stub_contents("CHANGELOG.md", content)
+
+        entries = parser.entries_between("owner/repo", "1.0.0", "2.0.0")
+
+        expect(entries.size).to eq(1)
+        expect(entries.first[:tag_name]).to eq("2.0.0")
+      end
+    end
+
+    context "with invalid version arguments" do
+      it "returns empty array when current version is malformed" do
+        stub_contents("CHANGELOG.md", keep_a_changelog)
+
+        entries = parser.entries_between("owner/repo", "not a version", "2.0.0")
+
+        expect(entries).to eq([])
+      end
+    end
+
+    context "when Errno::ETIMEDOUT occurs" do
+      it "raises NetworkError" do
+        stub_request(:get, "#{contents_url}CHANGELOG.md")
+          .to_raise(Errno::ETIMEDOUT)
+
+        expect { parser.entries_between("owner/repo", "1.0.0", "2.0.0") }
+          .to raise_error(GemChangelogDiff::NetworkError)
+      end
+    end
+
+    context "when OpenSSL::SSL::SSLError occurs" do
+      it "raises NetworkError" do
+        stub_request(:get, "#{contents_url}CHANGELOG.md")
+          .to_raise(OpenSSL::SSL::SSLError.new("SSL error"))
+
+        expect { parser.entries_between("owner/repo", "1.0.0", "2.0.0") }
+          .to raise_error(GemChangelogDiff::NetworkError)
+      end
+    end
+
     context "when no changelog file exists" do
       it "returns an empty array" do
         stub_not_found("CHANGELOG.md")
