@@ -2,18 +2,6 @@
 
 Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/release` when that version ships.
 
-## 0.6.0 -- Interactive Mode & Output Formats
-
-Let users selectively browse changelogs. Support machine-readable output for CI and scripting.
-
-- Interactive gem selection via `tty-prompt` (`--interactive` / `-i` flag)
-- `show` subcommand: `gem_changelog_diff show rails 7.0.0 7.1.0`
-
-**New files:** `interactive.rb`
-**Dependencies:** `tty-prompt` (runtime)
-
----
-
 ## 0.7.0 -- Configuration File & Polish
 
 Persistent preferences so users don't repeat flags every run.

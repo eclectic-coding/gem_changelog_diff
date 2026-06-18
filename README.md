@@ -17,6 +17,8 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Output Control](#output-control)
   - [Detection Strategy](#detection-strategy)
   - [Filtering](#filtering)
+  - [Interactive Mode](#interactive-mode)
+  - [Show Subcommand](#show-subcommand)
   - [Caching](#caching)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -96,6 +98,24 @@ gem_changelog_diff --lockfile path/to/Gemfile.lock  # Custom lockfile path
 gem_changelog_diff check rails sidekiq  # Only check specific gems
 gem_changelog_diff --group development   # Filter by Bundler group
 gem_changelog_diff --ignore rails rake   # Exclude specific gems
+```
+
+### Interactive Mode
+
+```bash
+gem_changelog_diff --interactive  # Multi-select which gems to check
+gem_changelog_diff -i             # Short alias
+```
+
+After detecting outdated gems, presents a multi-select prompt where you can choose which gems to fetch changelogs for.
+
+### Show Subcommand
+
+Look up changelogs for a specific gem between two versions, without needing a Gemfile.lock:
+
+```bash
+gem_changelog_diff show rails 7.0.8 7.1.3
+gem_changelog_diff show rails 7.0.8 7.1.3 --format json
 ```
 
 ### Caching
