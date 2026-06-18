@@ -20,6 +20,7 @@ CLI that shows you the changelog diff for each gem before you `bundle update`, p
   - [Interactive Mode](#interactive-mode)
   - [Show Subcommand](#show-subcommand)
   - [Caching](#caching)
+  - [Configuration File](#configuration-file)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -127,6 +128,34 @@ gem_changelog_diff --no-cache             # Bypass the cache
 gem_changelog_diff --cache-ttl 3600       # Set TTL to 1 hour
 gem_changelog_diff cache clear            # Clear all cached data
 ```
+
+### Configuration File
+
+Generate a config file template:
+
+```bash
+gem_changelog_diff init  # Creates .gem_changelog_diff.yml
+```
+
+The tool loads settings from two locations (project overrides user):
+
+1. `~/.config/gem_changelog_diff/config.yml` (user-level defaults)
+2. `.gem_changelog_diff.yml` (project-level overrides)
+
+Supported keys:
+
+```yaml
+github_token: ghp_xxx
+default_format: text       # text, json, markdown
+cache_ttl: 86400           # seconds (default: 24 hours)
+concurrency: 4
+ignore_gems:
+  - rake
+  - bundler
+no_color: false
+```
+
+CLI flags always take priority over config file values.
 
 [Back to top](#gemchangelogdiff)
 

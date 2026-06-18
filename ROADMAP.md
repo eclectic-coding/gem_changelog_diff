@@ -6,10 +6,6 @@ Feature roadmap for gem_changelog_diff. Each section is auto-pruned by `bin/rele
 
 Persistent preferences so users don't repeat flags every run.
 
-- Config file: `.gem_changelog_diff.yml` (project root) and `~/.config/gem_changelog_diff/config.yml` (user); project overrides user
-- Supported keys: `github_token`, `default_format`, `cache_ttl`, `concurrency`, `ignore_gems`, `no_color`
-- `init` subcommand: generate a commented config template
-- `version` subcommand
 - `--dry-run` flag: show which gems would be checked without fetching
 - Rails credentials support: read token from `Rails.application.credentials.dig(:gem_changelog_diff, :github_token)` when running inside a Rails app
 
