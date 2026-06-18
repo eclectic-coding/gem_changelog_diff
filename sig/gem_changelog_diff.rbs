@@ -102,18 +102,34 @@ module GemChangelogDiff
     def parse: (String output) -> Array[OutdatedGem]
   end
 
+  class UriResolver
+    GITHUB_REGEX: Regexp
+    NON_GITHUB_HOSTS: Hash[String, String]
+    URI_FIELDS: Array[String]
+    MAX_REDIRECTS: Integer
+
+    def resolve: (Hash[String, untyped] gem_data) -> String?
+
+    private
+
+    def extract_uris: (Hash[String, untyped] data) -> Array[String]
+    def detect_non_github: (Array[String] uris) -> String?
+    def extract_github_slug: (Array[String] uris) -> String?
+    def follow_redirects: (String slug, ?Integer remaining) -> String
+    def execute_head_request: (URI::Generic uri) -> (Net::HTTPResponse)
+    def request_headers: () -> Hash[String, String]
+  end
+
   class RubygemsClient
     RUBYGEMS_API: String
-    GITHUB_REPO_REGEX: Regexp
 
-    def initialize: (?cache: Cache?) -> void
+    def initialize: (?cache: Cache?, ?uri_resolver: UriResolver) -> void
     def repo_url: (String gem_name) -> String?
     def latest_version: (String gem_name) -> String?
 
     private
 
     def fetch_gem_data: (String gem_name) -> Hash[String, untyped]?
-    def extract_github_repo: (Hash[String, untyped] data) -> String?
   end
 
   class LockfileParser

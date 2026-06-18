@@ -3,6 +3,10 @@
 RSpec.describe GemChangelogDiff::RubygemsClient do
   subject(:client) { described_class.new }
 
+  before do
+    stub_request(:head, %r{api\.github\.com/repos/}).to_return(status: 200)
+  end
+
   describe "#repo_url" do
     context "when source_code_uri contains a GitHub URL" do
       it "returns owner/repo" do
