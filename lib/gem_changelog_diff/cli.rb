@@ -18,6 +18,8 @@ module GemChangelogDiff
     class_option :strategy, type: :string, default: "auto", desc: "Detection strategy (auto, outdated, lockfile)"
     class_option :group, type: :string, desc: "Filter by Bundler group"
     class_option :ignore, type: :array, desc: "Gems to skip"
+    class_option :no_cache, type: :boolean, default: false, desc: "Disable caching"
+    class_option :cache_ttl, type: :numeric, desc: "Cache TTL in seconds"
 
     desc "check [GEM...]", "Show changelog diffs for outdated gems"
     def check(*gem_names)
@@ -35,6 +37,17 @@ module GemChangelogDiff
       say formatter.format(reports)
     end
 
+    desc "cache SUBCOMMAND", "Manage the cache"
+    def cache(subcommand = nil)
+      case subcommand
+      when "clear"
+        Cache.new.clear
+        say "Cache cleared."
+      else
+        say "Usage: gem_changelog_diff cache clear"
+      end
+    end
+
     desc "version", "Print version"
     def version
       say "gem_changelog_diff #{VERSION}"
@@ -47,6 +60,12 @@ module GemChangelogDiff
     def configure_token
       token = options[:token] || ENV.fetch("GITHUB_TOKEN", nil)
       GemChangelogDiff.configuration.github_token = token if token
+    end
+
+    def build_cache
+      ttl = options[:cache_ttl] || GemChangelogDiff.configuration.cache_ttl
+      enabled = !options[:no_cache] && GemChangelogDiff.configuration.cache_enabled
+      Cache.new(ttl: ttl, enabled: enabled)
     end
 
     def detect_gems
@@ -83,8 +102,12 @@ module GemChangelogDiff
     end
 
     def build_reports(gems)
-      rubygems_client = RubygemsClient.new
-      source_resolver = SourceResolver.new
+      cache = build_cache
+      rubygems_client = RubygemsClient.new(cache: cache)
+      source_resolver = SourceResolver.new(
+        github_client: GithubClient.new(cache: cache),
+        changelog_parser: ChangelogParser.new(cache: cache)
+      )
 
       gems.map { |gem| build_gem_report(gem, rubygems_client, source_resolver) }
     end

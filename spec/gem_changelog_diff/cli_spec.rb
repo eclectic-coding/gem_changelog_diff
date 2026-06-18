@@ -257,6 +257,25 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
+  describe "#cache" do
+    it "clears the cache" do
+      cache_instance = instance_double(GemChangelogDiff::Cache)
+      allow(GemChangelogDiff::Cache).to receive(:new).and_return(cache_instance)
+      allow(cache_instance).to receive(:clear)
+
+      output = capture_output { described_class.start(["cache", "clear"]) }
+
+      expect(output).to include("Cache cleared.")
+      expect(cache_instance).to have_received(:clear)
+    end
+
+    it "shows usage for unknown subcommand" do
+      output = capture_output { described_class.start(["cache"]) }
+
+      expect(output).to include("Usage:")
+    end
+  end
+
   describe ".exit_on_failure?" do
     it "returns true" do
       expect(described_class.exit_on_failure?).to be true

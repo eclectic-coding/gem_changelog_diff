@@ -9,6 +9,10 @@ module GemChangelogDiff
     FILENAMES = %w[CHANGELOG.md CHANGES.md History.md NEWS.md].freeze
     VERSION_HEADING = /^##\s+\[?v?(\d+[^\]\s]+)/
 
+    def initialize(cache: nil)
+      @cache = cache
+    end
+
     def entries_between(repo, current_version, newest_version)
       content = fetch_changelog(repo)
       return [] unless content
@@ -40,14 +44,22 @@ module GemChangelogDiff
     end
 
     def execute_request(uri)
+      headers = request_headers
+      return @cache.get(uri, headers: headers) if @cache
+
       request = Net::HTTP::Get.new(uri)
-      request["Accept"] = "application/vnd.github.v3+json"
-      request["User-Agent"] = "gem_changelog_diff/#{VERSION}"
-
-      token = GemChangelogDiff.configuration.github_token
-      request["Authorization"] = "token #{token}" if token
-
+      headers.each { |k, v| request[k] = v }
       Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    end
+
+    def request_headers
+      headers = {
+        "Accept" => "application/vnd.github.v3+json",
+        "User-Agent" => "gem_changelog_diff/#{VERSION}"
+      }
+      token = GemChangelogDiff.configuration.github_token
+      headers["Authorization"] = "token #{token}" if token
+      headers
     end
 
     def parse_entries(content, current_version, newest_version)
