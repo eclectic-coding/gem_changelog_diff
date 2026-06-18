@@ -160,6 +160,16 @@ module GemChangelogDiff
     def extract_version: (String? tag) -> String?
   end
 
+  class ConcurrentFetcher
+    def initialize: (?concurrency: Integer) -> void
+    def fetch_all: [T, U] (Array[T], &) -> Array[U]
+
+    private
+
+    def spawn_workers: (Queue[untyped], Array[untyped], &) -> Array[Thread]
+    def process_queue: (Queue[untyped], Array[untyped], &) -> void
+  end
+
   type gem_report = {
     gem: OutdatedGem,
     releases: Array[release_hash],
@@ -195,6 +205,7 @@ module GemChangelogDiff
 
     private
 
+    def with_spinner: [T] () { () -> T } -> T
     def color_enabled?: () -> bool
     def configure_token: () -> void
     def build_cache: () -> Cache
