@@ -13,11 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Informative skip messages for gems hosted on GitLab, Codeberg, Bitbucket, and SourceHut
 - Automatic redirect following for renamed GitHub repositories (up to 3 hops)
 - `RepoNotFoundError` raised with descriptive messages for non-GitHub gems
+- `TagMatcher` class for tag format normalization (`v1.2.3`, `1.2.3`, `gem_name-1.2.3`, `release-1.2.3`)
+- GitHub API pagination for gems with 100+ releases (up to 1000 releases)
+- Early termination when paginated releases pass the current version
+- Per-request timeout (10s default) and total timeout (120s default)
+- `--timeout` flag to set per-request timeout
+- `request_timeout` and `total_timeout` config file options
+- Interactive mode help hint: "(Space to select, Enter to confirm)"
+- `JSON::ParserError` handling in gem report builder to prevent worker thread crashes
+- Wider network error handling: `Errno::ETIMEDOUT`, `Errno::ECONNRESET`, `OpenSSL::SSL::SSLError`
 
 ### Changed
 
 - `RubygemsClient` delegates URI resolution to `UriResolver` (extracted `extract_github_repo`)
 - Error message for missing repo changed from "Could not find GitHub repository" to "Could not determine source repository"
+- `GithubClient` uses `TagMatcher` for version extraction (replaced `TAG_VERSION_REGEX`)
+- `GithubClient` fetches 100 releases per page (was 30) with pagination support
+- `GithubClient` returns empty array for HTTP 301 responses (redirects handled by `UriResolver`)
+- All `Gem::Version.new` calls wrapped in `safe_gem_version` helper to prevent `ArgumentError` crashes
+- `ConcurrentFetcher` wrapped in total timeout to prevent runaway operations
+- HTTP requests in `Cache`, `RubygemsClient`, and `ChangelogParser` use configurable timeouts
 
 ## [0.7.0] - 2026-06-18
 
