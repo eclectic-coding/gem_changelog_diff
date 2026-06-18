@@ -34,11 +34,11 @@ module GemChangelogDiff
       gems = filter_gems(detect_gems, gem_names)
       return say("All gems are up to date!") if gems.empty?
 
-      gems = Interactive.new(gems: gems).select if options[:interactive]
+      gems = apply_interactive(gems)
       return say("No gems selected.") if gems.empty?
       return dry_run_output(gems) if options[:dry_run]
 
-      output_results(gems)
+      exit exit_status(output_results(gems))
     end
 
     desc "show GEM FROM_VERSION TO_VERSION", "Show changelog between two versions of a gem"
@@ -48,6 +48,7 @@ module GemChangelogDiff
       report = build_single_report(gem)
       formatter = Formatters.build(format: resolved_format, color: color_enabled?)
       write_output(formatter.format([report]))
+      exit report[:error] ? ExitCode::ERROR : ExitCode::SUCCESS
     end
 
     desc "cache SUBCOMMAND", "Manage the cache"
@@ -220,6 +221,21 @@ module GemChangelogDiff
       reports = with_spinner { build_reports(gems) }
       formatter = Formatters.build(format: resolved_format, color: color_enabled?)
       write_output(formatter.format(reports))
+      reports
+    end
+
+    def apply_interactive(gems)
+      return gems unless options[:interactive]
+
+      Interactive.new(gems: gems).select
+    end
+
+    def exit_status(reports)
+      error_count = reports.count { |r| r[:error] }
+      return ExitCode::SUCCESS if error_count.zero?
+      return ExitCode::ERROR if error_count == reports.size
+
+      ExitCode::PARTIAL_FAILURE
     end
 
     def resolved_format
