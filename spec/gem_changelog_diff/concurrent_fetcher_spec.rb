@@ -35,13 +35,20 @@ RSpec.describe GemChangelogDiff::ConcurrentFetcher do
       fetcher = described_class.new(concurrency: 2)
       items = [1, 2]
 
-      expect do
-        fetcher.fetch_all(items) do |item|
-          raise "boom" if item == 2
+      original = Thread.report_on_exception
+      Thread.report_on_exception = false
 
-          item
-        end
-      end.to raise_error(RuntimeError, "boom")
+      begin
+        expect do
+          fetcher.fetch_all(items) do |item|
+            raise "boom" if item == 2
+
+            item
+          end
+        end.to raise_error(RuntimeError, "boom")
+      ensure
+        Thread.report_on_exception = original
+      end
     end
 
     it "limits thread count to item count" do
