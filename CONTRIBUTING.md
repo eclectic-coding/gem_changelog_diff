@@ -10,6 +10,8 @@ cd gem_changelog_diff
 bin/setup
 ```
 
+`bin/setup` also enables the tracked git hooks in `.githooks/`. The `pre-push` hook runs `bundle exec rake` (bundler-audit, rubocop, rspec) and blocks the push on failure. Bypass with `git push --no-verify` only when necessary.
+
 ## Running Tests
 
 ```bash
