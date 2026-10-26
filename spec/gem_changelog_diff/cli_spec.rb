@@ -613,8 +613,8 @@ RSpec.describe GemChangelogDiff::CLI do
     end
   end
 
-  # rubocop:disable RSpec/VerifiedDoubles -- Rails is not available in test environment
   describe "Rails credentials token" do
+    # rubocop:disable RSpec/VerifiedDoubles -- Rails is not available in test environment
     before { allow(Open3).to receive(:capture2).with("gh", "auth", "token").and_raise(Errno::ENOENT) }
 
     it "reads token from Rails credentials when available" do
@@ -661,8 +661,8 @@ RSpec.describe GemChangelogDiff::CLI do
 
       expect(GemChangelogDiff.configuration.github_token).to be_nil
     end
+    # rubocop:enable RSpec/VerifiedDoubles
   end
-  # rubocop:enable RSpec/VerifiedDoubles
 
   describe ".exit_on_failure?" do
     it "returns true" do
