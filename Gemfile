@@ -20,6 +20,6 @@ group :test do
   gem "rspec", "~> 3.0"
   gem "simplecov", require: false
   gem "simplecov_json_formatter", require: false
-  gem "vcr", "~> 6.0"
+  gem "vcr", "~> 6.4"
   gem "webmock", "~> 3.34"
 end
