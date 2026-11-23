@@ -21,5 +21,5 @@ group :test do
   gem "simplecov", require: false
   gem "simplecov_json_formatter", require: false
   gem "vcr", "~> 6.4"
-  gem "webmock", "~> 3.34"
+  gem "webmock", "~> 3.36"
 end
